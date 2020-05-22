@@ -15,3 +15,4 @@ BOOLEAN FUNCTION is_large(INTEGER ix, INTEGER iz)
   RESULT ABS(iz)<=z_threshold
 END is_large
 
+END largesmall_def
