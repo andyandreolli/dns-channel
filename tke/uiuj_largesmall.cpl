@@ -18,6 +18,7 @@ USE ../dnsdata
 USE ../dnsdirect
 !USE rtchecks ! FIXME: useless? to be deleted
 USE convenience
+USE largesmall_def
 
 
 
@@ -58,6 +59,12 @@ SHARED ARRAY(nyl-2..nyh+2,-nz..nz) OF BALANCE luiuj=0
 SHARED ARRAY(nyl-2..nyh+2) OF BALANCE luiujprofiles=0
 ARRAY(-nz..nz) OF INTEGER izdV=0; DO izdV(iz)=IF iz>=0 THEN iz ELSE nzd+iz FOR iz=-nz TO nz
 izd==izdV(iz)
+
+
+
+! Apply settings
+! ------------------------------------
+largesmall_setup()
 
 
 
