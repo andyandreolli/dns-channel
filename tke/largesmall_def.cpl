@@ -2,13 +2,13 @@
 
 SUBROUTINE largesmall_setup() FOLLOWS
 BOOLEAN FUNCTION is_large(INTEGER ix, INTEGER iz) FOLLOWS
-CONSTANT INTEGER z_threshold
+INTEGER z_threshold
 
 MODULE largesmall_def
 
 SUBROUTINE largesmall_setup()
     FILE in_params = OPENRO("largesmall_settings.in")
-    READ FROM in_params BY NAME z_threshold END
+    READ BY NAME z_threshold FROM in_params
 END largesmall_setup
 
 BOOLEAN FUNCTION is_large(INTEGER ix, INTEGER iz)
