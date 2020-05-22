@@ -1,0 +1,17 @@
+! This module contains a function 
+
+SUBROUTINE largesmall_setup() FOLLOWS
+BOOLEAN FUNCTION is_large(INTEGER ix, INTEGER iz) FOLLOWS
+CONSTANT INTEGER z_threshold
+
+MODULE largesmall_def
+
+SUBROUTINE largesmall_setup()
+    FILE in_params = OPENRO("largesmall_settings.in")
+    READ FROM in_params file BY NAME z_threshold 
+END largesmall_setup
+
+BOOLEAN FUNCTION is_large(INTEGER ix, INTEGER iz)
+  RESULT ABS(iz)<=z_threshold
+END is_large
+
