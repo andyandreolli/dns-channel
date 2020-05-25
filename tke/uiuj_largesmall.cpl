@@ -16,7 +16,7 @@ gamma=0
 
 USE ../dnsdata
 USE ../dnsdirect
-!USE rtchecks ! FIXME: useless? to be deleted
+!USE rtchecks
 USE convenience
 USE largesmall_def
 

@@ -54,7 +54,7 @@ REPEAT
 LOOP FOR i=1 TO 12
   FILE outfile=CREATE(intterms(i))
   WRITE TO outfile "var","prod","psdiss","ttrsp","tcross","vdiff","pstrain","ptrsp"
-  IF i<=6
+  IF i<=6 THEN
     WITH uiujimage.luiujprofilesdata: WRITE TO outfile yintf(var(*,i)),yintf(prod(*,i)),yintf(psdiss(*,i)),yintf(ttrsp(*,i)),yintf(tcross(*,i)),
                                             yintf(vdiff(*,i)),yintf(pstrain(*,i)),yintf(ptrsp(*,i))
   ELSE
