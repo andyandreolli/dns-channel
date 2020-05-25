@@ -39,7 +39,7 @@ uiujimage = OPEN("uiuj.bin")
 LOOP FOR i=1 TO 12
   FILE outfile=CREATE(terms(i))
   WRITE TO outfile "y","var","prod","psdiss","ttrsp","tcross","vdiff","pstrain","ptrsp","PHIttrsp","PHIvdiff","PHIptrsp"
-  IF i<=6
+  IF i<=6 THEN
     DO WITH uiujimage.luiujprofilesdata(iy):
       WRITE TO outfile y(iy),var(i),prod(i),psdiss(i),ttrsp(i),tcross(i),vdiff(i),pstrain(i),ptrsp(i),PHIttrsp(i),PHIvdiff(i),PHIptrsp(i)
     FOR iy=0 TO ny
