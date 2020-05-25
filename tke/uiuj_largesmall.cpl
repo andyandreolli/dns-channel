@@ -147,7 +147,7 @@ LOOP fields FOR n=nfmin TO nfmax BY dn
       END IF
     REPEAT
     LOOP FOR ix=0 TO nx AND iz=-nz TO -1
-      IF is_large(ix,iz)
+      IF is_large(ix,iz) THEN
         Vderl(ix,nzd+iz)=Vder(ix,iz,iy)
         Vl(ix,nzd+iz)=V(ix,iz,iy)
       ELSE
