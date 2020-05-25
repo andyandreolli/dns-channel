@@ -194,8 +194,8 @@ LOOP fields FOR n=nfmin TO nfmax BY dn
     ! Write to luiuj (summing in ix)
     DO WITH luiuj(iy,iz)
         c=IF ix=0 THEN 1 ELSE 2
-        DO PHIttrsp(i) = ~ -c * PHIttrspd(ix,izd,i) FOR i=1..4
-        DO tcross(i) = ~ -c * PHIttrspd(ix,izd,i) FOR i=1..4
+        DO PHIttrsp(i) = ~ -c * PHIttrspd(ix,izd,i) FOR i=1 TO 4
+        DO tcross(i) = ~ -c * PHIttrspd(ix,izd,i) FOR i=1 TO 4
     FOR ix=0 TO nx AND iz=-nz TO nz
 !    ! Convolutions
 !    ARRAY(0..2*nxd-1,0..nzd-1) OF VELOCITY VD
