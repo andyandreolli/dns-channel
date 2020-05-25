@@ -57,44 +57,44 @@ LOOP FOR i=1 TO 12
   END IF
   CLOSE(outfile)
 REPEAT
-!! reynolds tensor - integrals
-!LOOP FOR i=1 TO 12
-!  FILE outfile=CREATE(intterms(i))
-!  WRITE TO outfile "var","prod","psdiss","ttrsp","tcross","vdiff","pstrain","ptrsp"
-!  IF i<=6 THEN
-!    WITH uiujimage.luiujprofilesdata: WRITE TO outfile yintf(var(*,i)),yintf(prod(*,i)),yintf(psdiss(*,i)),yintf(ttrsp(*,i)),yintf(tcross(*,i)),
-!                                            yintf(vdiff(*,i)),yintf(pstrain(*,i)),yintf(ptrsp(*,i))
-!  ELSE
-!    WITH uiujimage.suiujprofilesdata: WRITE TO outfile yintf(var(*,i-6)),yintf(prod(*,i-6)),yintf(psdiss(*,i-6)),yintf(ttrsp(*,i-6)),yintf(tcross(*,i-6)),
-!                                            yintf(vdiff(*,i-6)),yintf(pstrain(*,i-6)),yintf(ptrsp(*,i-6))
-!  END IF
-!  CLOSE(outfile)
-!REPEAT
-!! tke
-!FILE outfile=CREATE("tke_large.dat")
-!WRITE TO outfile "y","var","prod","psdiss","ttrsp","tcross","vdiff","pstrain","ptrsp","PHIttrsp","PHIvdiff","PHIptrsp"
-!DO WITH uiujimage.luiujprofilesdata(iy):
-!  WRITE TO outfile y(iy)/2,SUM(var(1..3))/2,SUM(prod(1..3))/2,SUM(psdiss(1..3))/2,SUM(ttrsp(1..3))/2,SUM(tcross(1..3))/2,SUM(vdiff(1..3))/2,
-!                   SUM(pstrain(1..3))/2,SUM(ptrsp(1..3))/2,SUM(PHIttrsp(1..3))/2,SUM(PHIvdiff(1..3))/2,SUM(PHIptrsp(1..3))/2
-!FOR iy=0 TO ny
-!CLOSE(outfile)
-!FILE outfile=CREATE("tke_small.dat")
-!WRITE TO outfile "y","var","prod","psdiss","ttrsp","tcross","vdiff","pstrain","ptrsp","PHIttrsp","PHIvdiff","PHIptrsp"
-!DO WITH uiujimage.suiujprofilesdata(iy):
-!  WRITE TO outfile y(iy)/2,SUM(var(1..3))/2,SUM(prod(1..3))/2,SUM(psdiss(1..3))/2,SUM(ttrsp(1..3))/2,SUM(tcross(1..3))/2,SUM(vdiff(1..3))/2,
-!                   SUM(pstrain(1..3))/2,SUM(ptrsp(1..3))/2,SUM(PHIttrsp(1..3))/2,SUM(PHIvdiff(1..3))/2,SUM(PHIptrsp(1..3))/2
-!FOR iy=0 TO ny
-!CLOSE(outfile)
-!! tke - integrals
-!FILE outfile=CREATE("tkeintegrals_large.dat")
-!WRITE TO outfile "var","prod","psdiss","ttrsp","vdiff","pstrain","ptrsp"
-!WITH uiujimage.luiujprofilesdata(*): WRITE TO outfile sumint(var)/2,sumint(prod)/2,sumint(psdiss)/2,sumint(ttrsp)/2,sumint(vdiff)/2,sumint(pstrain)/2,sumint(ptrsp)/2
-!CLOSE(outfile)
-!FILE outfile=CREATE("tkeintegrals_small.dat")
-!WRITE TO outfile "var","prod","psdiss","ttrsp","vdiff","pstrain","ptrsp"
-!WITH uiujimage.suiujprofilesdata(*): WRITE TO outfile sumint(var)/2,sumint(prod)/2,sumint(psdiss)/2,sumint(ttrsp)/2,sumint(vdiff)/2,sumint(pstrain)/2,sumint(ptrsp)/2
-!CLOSE(outfile)
-!! mke
+! reynolds tensor - integrals
+LOOP FOR i=1 TO 12
+  FILE outfile=CREATE(intterms(i))
+  WRITE TO outfile "var","prod","psdiss","ttrsp","tcross","vdiff","pstrain","ptrsp"
+  IF i<=6 THEN
+    WITH uiujimage.luiujprofilesdata: WRITE TO outfile yintf(var(*,i)),yintf(prod(*,i)),yintf(psdiss(*,i)),yintf(ttrsp(*,i)),yintf(tcross(*,i)),
+                                            yintf(vdiff(*,i)),yintf(pstrain(*,i)),yintf(ptrsp(*,i))
+  ELSE
+    WITH uiujimage.suiujprofilesdata: WRITE TO outfile yintf(var(*,i-6)),yintf(prod(*,i-6)),yintf(psdiss(*,i-6)),yintf(ttrsp(*,i-6)),yintf(tcross(*,i-6)),
+                                            yintf(vdiff(*,i-6)),yintf(pstrain(*,i-6)),yintf(ptrsp(*,i-6))
+  END IF
+  CLOSE(outfile)
+REPEAT
+! tke
+FILE outfile=CREATE("tke_large.dat")
+WRITE TO outfile "y","var","prod","psdiss","ttrsp","tcross","vdiff","pstrain","ptrsp","PHIttrsp","PHIvdiff","PHIptrsp"
+DO WITH uiujimage.luiujprofilesdata(iy):
+  WRITE TO outfile y(iy)/2,SUM(var(1..3))/2,SUM(prod(1..3))/2,SUM(psdiss(1..3))/2,SUM(ttrsp(1..3))/2,SUM(tcross(1..3))/2,SUM(vdiff(1..3))/2,
+                   SUM(pstrain(1..3))/2,SUM(ptrsp(1..3))/2,SUM(PHIttrsp(1..3))/2,SUM(PHIvdiff(1..3))/2,SUM(PHIptrsp(1..3))/2
+FOR iy=0 TO ny
+CLOSE(outfile)
+FILE outfile=CREATE("tke_small.dat")
+WRITE TO outfile "y","var","prod","psdiss","ttrsp","tcross","vdiff","pstrain","ptrsp","PHIttrsp","PHIvdiff","PHIptrsp"
+DO WITH uiujimage.suiujprofilesdata(iy):
+  WRITE TO outfile y(iy)/2,SUM(var(1..3))/2,SUM(prod(1..3))/2,SUM(psdiss(1..3))/2,SUM(ttrsp(1..3))/2,SUM(tcross(1..3))/2,SUM(vdiff(1..3))/2,
+                   SUM(pstrain(1..3))/2,SUM(ptrsp(1..3))/2,SUM(PHIttrsp(1..3))/2,SUM(PHIvdiff(1..3))/2,SUM(PHIptrsp(1..3))/2
+FOR iy=0 TO ny
+CLOSE(outfile)
+! tke - integrals
+FILE outfile=CREATE("tkeintegrals_large.dat")
+WRITE TO outfile "var","prod","psdiss","ttrsp","vdiff","pstrain","ptrsp"
+WITH uiujimage.luiujprofilesdata(*): WRITE TO outfile sumint(var)/2,sumint(prod)/2,sumint(psdiss)/2,sumint(ttrsp)/2,sumint(vdiff)/2,sumint(pstrain)/2,sumint(ptrsp)/2
+CLOSE(outfile)
+FILE outfile=CREATE("tkeintegrals_small.dat")
+WRITE TO outfile "var","prod","psdiss","ttrsp","vdiff","pstrain","ptrsp"
+WITH uiujimage.suiujprofilesdata(*): WRITE TO outfile sumint(var)/2,sumint(prod)/2,sumint(psdiss)/2,sumint(ttrsp)/2,sumint(vdiff)/2,sumint(pstrain)/2,sumint(ptrsp)/2
+CLOSE(outfile)
+! mke
 !FILE outfile=CREATE("mke.dat")
 !WRITE TO outfile "y","pump","produv","prodvw","ttrsp","vdiff","dissU","dissW","PHIttrsp","PHIvdiff"
 !DO WITH uiujimage.mkedata(iy): WRITE TO outfile y(iy),pump,produv,prodvw,ttrsp,vdiff,dissU,dissW,PHIttrsp,PHIvdiff FOR iy=0 TO ny
@@ -104,18 +104,18 @@ REPEAT
 !WRITE TO outfile "pump","produv","prodvw","ttrsp","vdiff","dissU","dissW"
 !WITH uiujimage.mkedata: WRITE TO outfile yintf(pump),yintf(produv),yintf(prodvw),yintf(ttrsp),yintf(vdiff),yintf(dissU),yintf(dissW)
 !CLOSE(outfile)
-!! var
-!FILE outfile=CREATE("var_large.dat")
-!WRITE TO outfile "y","uu","vv","ww","uv","uw","vw"
-!DO WITH uiujimage.luiujprofilesdata(iy): WRITE TO outfile y(iy),var(1),var(2),var(3),var(4),var(5),var(6) FOR iy=0 TO ny
-!CLOSE(outfile)
-!FILE outfile=CREATE("var_small.dat")
-!WRITE TO outfile "y","uu","vv","ww","uv","uw","vw"
-!DO WITH uiujimage.suiujprofilesdata(iy): WRITE TO outfile y(iy),var(1),var(2),var(3),var(4),var(5),var(6) FOR iy=0 TO ny
-!CLOSE(outfile)
-!! mean
-!FILE outfile=CREATE("mean.dat")
-!WRITE TO outfile "y","U","W","Uy","Wy","Uyy","Wyy"
-!DO WITH uiujimage.meandata(iy): WRITE TO outfile y(iy),U,W,Uy,Wy,Uyy,Wyy FOR iy=0 TO ny
-!CLOSE(outfile)
+! var
+FILE outfile=CREATE("var_large.dat")
+WRITE TO outfile "y","uu","vv","ww","uv","uw","vw"
+DO WITH uiujimage.luiujprofilesdata(iy): WRITE TO outfile y(iy),var(1),var(2),var(3),var(4),var(5),var(6) FOR iy=0 TO ny
+CLOSE(outfile)
+FILE outfile=CREATE("var_small.dat")
+WRITE TO outfile "y","uu","vv","ww","uv","uw","vw"
+DO WITH uiujimage.suiujprofilesdata(iy): WRITE TO outfile y(iy),var(1),var(2),var(3),var(4),var(5),var(6) FOR iy=0 TO ny
+CLOSE(outfile)
+! mean
+FILE outfile=CREATE("mean.dat")
+WRITE TO outfile "y","U","W","Uy","Wy","Uyy","Wyy"
+DO WITH uiujimage.meandata(iy): WRITE TO outfile y(iy),U,W,Uy,Wy,Uyy,Wyy FOR iy=0 TO ny
+CLOSE(outfile)
 CLOSE(uiujimage)
