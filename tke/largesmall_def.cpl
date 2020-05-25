@@ -1,6 +1,6 @@
 ! This module contains a function 
 
-CONSTANT INTEGER z_threshold
+INTEGER z_threshold
 SUBROUTINE largesmall_setup() FOLLOWS
 INLINE FUNCTION is_large(INTEGER ix,iz)=ABS(iz)<=z_threshold
 
