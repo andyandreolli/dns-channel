@@ -9,6 +9,9 @@ MODULE largesmall_def
 SUBROUTINE largesmall_setup()
     FILE in_params = OPENRO("largesmall_settings.in")
     READ BY NAME FROM in_params z_threshold
+    IF has_terminal THEN
+        WRITE BY NAME z_threshold
+    END IF
 END largesmall_setup
 
 END largesmall_def
