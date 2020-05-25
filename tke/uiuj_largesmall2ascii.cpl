@@ -105,14 +105,14 @@ CLOSE(outfile)
 !WITH uiujimage.mkedata: WRITE TO outfile yintf(pump),yintf(produv),yintf(prodvw),yintf(ttrsp),yintf(vdiff),yintf(dissU),yintf(dissW)
 !CLOSE(outfile)
 ! var
-FILE outfile=CREATE("var_large.dat")
-WRITE TO outfile "y","uu","vv","ww","uv","uw","vw"
-DO WITH uiujimage.luiujprofilesdata(iy): WRITE TO outfile y(iy),var(1),var(2),var(3),var(4),var(5),var(6) FOR iy=0 TO ny
-CLOSE(outfile)
-FILE outfile=CREATE("var_small.dat")
-WRITE TO outfile "y","uu","vv","ww","uv","uw","vw"
-DO WITH uiujimage.suiujprofilesdata(iy): WRITE TO outfile y(iy),var(1),var(2),var(3),var(4),var(5),var(6) FOR iy=0 TO ny
-CLOSE(outfile)
+!FILE outfile=CREATE("var_large.dat")
+!WRITE TO outfile "y","uu","vv","ww","uv","uw","vw"
+!DO WITH uiujimage.luiujprofilesdata(iy): WRITE TO outfile y(iy),var(1),var(2),var(3),var(4),var(5),var(6) FOR iy=0 TO ny
+!CLOSE(outfile)
+!FILE outfile=CREATE("var_small.dat")
+!WRITE TO outfile "y","uu","vv","ww","uv","uw","vw"
+!DO WITH uiujimage.suiujprofilesdata(iy): WRITE TO outfile y(iy),var(1),var(2),var(3),var(4),var(5),var(6) FOR iy=0 TO ny
+!CLOSE(outfile)
 ! mean
 FILE outfile=CREATE("mean.dat")
 WRITE TO outfile "y","U","W","Uy","Wy","Uyy","Wyy"
