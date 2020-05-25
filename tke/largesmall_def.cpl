@@ -2,7 +2,7 @@
 
 INTEGER z_threshold
 SUBROUTINE largesmall_setup() FOLLOWS
-INLINE FUNCTION is_large(INTEGER ix,iz)=ABS(iz)<=z_threshold
+INLINE BOOLEAN FUNCTION is_large(INTEGER ix,iz)=ABS(iz)<=z_threshold
 
 MODULE largesmall_def
 

@@ -138,7 +138,7 @@ LOOP fields FOR n=nfmin TO nfmax BY dn
     Vl=0; Vs=0
     ! prepare fast and slow velocity, also inverting order of index so that it suits FFT
     LOOP FOR ix=0 TO nx AND iz=0 TO nz
-      IF is_large(ix,iz)
+      IF is_large(ix,iz) THEN
         Vderl(ix,iz)=Vder(ix,iz,iy);
         Vl(ix,iz)=V(ix,iz,iy);
       ELSE
