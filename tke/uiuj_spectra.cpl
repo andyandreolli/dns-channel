@@ -15,10 +15,8 @@ USE convenience
 
 ! Parameters
 ! -----------------------------
-INTEGER nfmin,nfmax,dn
-nfmin=atoi(COMMANDLINE(4))
-nfmax=atoi(COMMANDLINE(5))
-dn=atoi(COMMANDLINE(6))
+nfmin=8; nfmax=200; dn=2 
+!342
 !------------------------------
 nftot=[(nfmax-nfmin) DIV dn]+1
 

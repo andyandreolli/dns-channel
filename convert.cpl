@@ -1,0 +1,36 @@
+gamma=0
+USE dnsdata
+USE dnsdirect
+!USE rtchecks
+USE ./tke/convenience
+
+INTEGER nfmin=atoi(COMMANDLINE(4))
+INTEGER nfmax=atoi(COMMANDLINE(5))
+
+LOOP FOR if=nfmin TO nfmax
+  STRING fnm=WRITE("Dati.cart."if".out")
+  read_field_fortran(fnm)
+  WRITE BY NAME if  
+  field_name = WRITE("Field"if".fld")
+  IF NOT first THEN READ FROM prev
+  diskfield = OPEN(field_name)
+  WITH diskfield
+    IF has_terminal THEN
+      WRITE "Writing field_file", cont, "at time", time
+      nyimage=ny;nximage=nx;nzimage=nz
+      timage=time;yminimage=ymin;ymaximage=ymax
+      aimage=a;alfa0image=alfa0;beta0image=beta0;niimage=1/ni
+    END IF
+    uavimage(miny..maxy)=V(0,0,miny..maxy).u.REAL
+    wavimage(miny..maxy)=V(0,0,miny..maxy).w.REAL
+
+    LOOP FOR iy = miny TO maxy
+     LOOP FOR ALL ix,iz WITH fieldbuf(ix,iz)
+      v = V(ix,iz,iy).v
+      ialfa = I*alfa0*ix; ibeta = I*beta0*iz
+      eta = ibeta*V(ix,iz,iy).u - ialfa*V(ix,iz,iy).w
+     REPEAT LOOP
+    fieldimage(iy)=fieldbuf
+    REPEAT LOOP
+  CLOSE diskfield
+REPEAT

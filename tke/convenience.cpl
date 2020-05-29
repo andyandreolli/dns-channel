@@ -23,6 +23,7 @@ IF last  THEN WITH derivs_standalone: d1(ny,*)=d14n;  d2(ny,*)=d24n;  d1(ny+1,*)
 SUBROUTINE ByteSwap(POINTER TO SINGLE xxx) FOLLOWS
 SUBROUTINE fourier2physical(ARRAY(*,*) OF COMPLEX plane; POINTER TO ARRAY(*,*) OF COMPLEX planed) FOLLOWS
 SUBROUTINE read_field_parallel(STRING field_name) FOLLOWS
+SUBROUTINE read_field_fortran(STRING field_name) FOLLOWS
 SUBROUTINE read_field(STRING field_name) FOLLOWS
 SUBROUTINE read_field_uvw(STRING field_name) FOLLOWS
 SUBROUTINE velocity_gradient(POINTER TO ARRAY(*,*,*) OF DERIVS Vder) FOLLOWS
@@ -68,6 +69,23 @@ REAL FUNCTION yintf(REAL f(*))
    RESULT=~+a1*f(iy-1) + a2*f(iy) + a3*f(iy+1)
   REPEAT
 END yintf
+
+SUBROUTINE read_field_fortran(STRING field_name)
+  IF has_terminal THEN WRITE "Reading field_file",field_name
+  INTEGER sz=SIZEOF(INTEGER)*3+SIZEOF(REAL)*7
+  POINTER TO STORED STRUCTURE(
+    ARRAY(0..sz-1) OF CHAR dummy
+    ARRAY(0..2,0..nx,-nz..nz,-1..ny+1) OF COMPLEX fieldfimage
+  ) diskffield
+  diskffield=OPENRO(field_name)
+  ARRAY(0..2,-nz..nz,-1..ny+1) OF COMPLEX fbuf
+  DO WITH diskffield: 
+    DO fbuf(i,*,*)=fieldfimage(i,ix,*,*) FOR i=0 TO 2
+    V(ix,-nz..nz,nyl-2..nyh+2).u=fbuf(0,*,nyl-2..nyh+2)
+    V(ix,-nz..nz,nyl-2..nyh+2).v=fbuf(1,*,nyl-2..nyh+2)
+    V(ix,-nz..nz,nyl-2..nyh+2).w=fbuf(2,*,nyl-2..nyh+2)
+  FOR ix=0 TO nx
+END read_field_fortran
 
 SUBROUTINE read_field_parallel(STRING field_name)
   IF has_terminal THEN WRITE "Reading field_file",field_name
