@@ -168,7 +168,7 @@ LOOP fields FOR n=nfmin TO nfmax BY dn
       WITH Vl(*,iz):    INLINE LOOP FOR i  IN (u,v,w); RFT(i); REPEAT
       WITH Vs(*,iz):    INLINE LOOP FOR i  IN (u,v,w); RFT(i); REPEAT
     FOR iz=0 TO HI
-    ! calculate stuff for large scales
+    ! Calculate stuff for large scales
     PHIttrspd = 0; temp_tcross = 0;
     DO 
       PHIttrspd(ix,iz,1).REAL=Vl(ix,iz).u.REAL * Vl(ix,iz).u.REAL * (Vl(ix,iz).u.REAL + Vl(ix,iz).v.REAL + Vl(ix,iz).w.REAL + Vs(ix,iz).u.REAL + Vs(ix,iz).v.REAL + Vs(ix,iz).w.REAL)
@@ -192,49 +192,12 @@ LOOP fields FOR n=nfmin TO nfmax BY dn
     DO HFT(PHIttrspd(*,iz,i)) FOR ALL i,iz; DO HFT(temp_tcross(*,iz,i)) FOR ALL i,iz
     DO FFT(PHIttrspd(ix,*,i)) FOR ALL i AND ix=0 TO nx;  DO FFT(temp_tcross(ix,*,i)) FOR ALL i AND ix=0 TO nx
     ! Write to luiuj (summing in ix)
-    DO WITH luiuj(iy,iz)
+    DO FOR ix=0 TO nx AND iz=-nz TO nz
         c=IF ix=0 THEN 1 ELSE 2
-        DO PHIttrsp(i) = ~ -c * PHIttrspd(ix,izd,i).REAL FOR i=1 TO 4
-        DO tcross(i) = ~ -c * temp_tcross(ix,izd,i).REAL FOR i=1 TO 4
-    FOR ix=0 TO nx AND iz=-nz TO nz
-!    ! Convolutions
-!    ARRAY(0..2*nxd-1,0..nzd-1) OF VELOCITY VD
-!    ARRAY(0..2*nxd-1,0..nzd-1) OF DERIVS VderD
-!    DO WITH Vd(*,iz), Vderd(*,iz): 
-!      VD(ix,iz).u=u.REALIFIED(ix); VD(ix,iz).v=v.REALIFIED(ix); VD(ix,iz).w=w.REALIFIED(ix)
-!      VderD(ix,iz).ux=ux.REALIFIED(ix); VderD(ix,iz).uy=uy.REALIFIED(ix); VderD(ix,iz).uz=uz.REALIFIED(ix)
-!      VderD(ix,iz).vx=vx.REALIFIED(ix); VderD(ix,iz).vy=vy.REALIFIED(ix); VderD(ix,iz).vz=vz.REALIFIED(ix)
-!      VderD(ix,iz).wx=wx.REALIFIED(ix); VderD(ix,iz).wy=wy.REALIFIED(ix); VderD(ix,iz).wz=wz.REALIFIED(ix)
-!    FOR ix=0 TO 2*nxd-1 AND iz=0 TO nzd-1
-!    DO  
-!      WITH VderD(ix,*): INLINE LOOP FOR ii IN (ux,vx,wx,uy,vy,wy,uz,vz,wz); FFT(ii); REPEAT
-!      WITH VD(ix,*):    INLINE LOOP FOR i  IN (u,v,w); FFT(i); REPEAT
-!    FOR ALL ix
-!    ARRAY(-nz..nz) OF DERIVS Vdertmp
-!    ARRAY(-nz..nz) OF VELOCITY Vtmp
-!#define triad(a,b,q,d) convolution(c*CONJG(a),b,q,d); convolution(c*a,CONJG(b),CONJG(q),d);
-!#ifdef convolutions
-!    DO WITH Vtmp(*), Vdertmp(*), convs(iy,*,*):
-!          Vtmp(0..nz)=VD(ix,0..nz); Vtmp(-nz..-1)=VD(ix,nzd+(-nz..-1))
-!          Vdertmp(0..nz)=VderD(ix,0..nz); Vdertmp(-nz..-1)=VderD(ix,nzd+(-nz..-1))
-!          c=0.5/nxd
-!          ! uu 
-!          triad(u,ux,u,uu); triad(u,vy,u,uu); triad(u,wz,u,uu);
-!          triad(u,u,ux,uu); triad(u,v,uy,uu); triad(u,w,uz,uu);
-!          ! vv
-!          triad(v,ux,v,vv); triad(v,vy,v,vv); triad(v,wz,v,vv);
-!          triad(v,vx,u,vv); triad(v,vy,v,vv); triad(v,vz,w,vv);
-!          ! ww 
-!          triad(w,ux,w,ww); triad(w,vy,w,ww); triad(w,wz,w,ww);
-!          triad(w,wx,u,ww); triad(w,wy,v,ww); triad(w,wz,w,ww);
-!          ! uv
-!          convolution(c*CONJG(v),ux,u,uv); convolution(c*CONJG(v),vy,u,uv); convolution(c*CONJG(v),wz,u,uv)
-!          convolution(c*CONJG(v),ux,u,uv); convolution(c*CONJG(v),uy,v,uv); convolution(c*CONJG(v),uz,w,uv)
-!          convolution(c*u,CONJG(ux),CONJG(v),uv); convolution(c*u,CONJG(vy),CONJG(v),uv); convolution(c*u,CONJG(wz),CONJG(v),uv)
-!          convolution(c*u,CONJG(vx),CONJG(u),uv); convolution(c*u,CONJG(vy),CONJG(v),uv); convolution(c*u,CONJG(vz),CONJG(w),uv)
-!    FOR ALL ix
-!#endif
-    ! calculate stuff for small scales
+        DO luiuj(iy,iz).PHIttrsp(i) = ~ -c * PHIttrspd(ix,izd,i).REAL FOR i=1 TO 4
+        DO luiuj(iy,iz).tcross(i) = ~ -c * temp_tcross(ix,izd,i).REAL FOR i=1 TO 4
+    REPEAT
+    ! Calculate stuff for small scales
     PHIttrspd = 0; temp_tcross = 0;
     DO
       PHIttrspd(ix,iz,1).REAL=Vs(ix,iz).u.REAL * Vs(ix,iz).u.REAL * (Vs(ix,iz).u.REAL + Vs(ix,iz).v.REAL + Vs(ix,iz).w.REAL + Vl(ix,iz).u.REAL + Vl(ix,iz).v.REAL + Vl(ix,iz).w.REAL)
@@ -258,11 +221,11 @@ LOOP fields FOR n=nfmin TO nfmax BY dn
     DO HFT(PHIttrspd(*,iz,i)) FOR ALL i,iz; DO HFT(temp_tcross(*,iz,i)) FOR ALL i,iz
     DO FFT(PHIttrspd(ix,*,i)) FOR ALL i AND ix=0 TO nx;  DO FFT(temp_tcross(ix,*,i)) FOR ALL i AND ix=0 TO nx
     ! Write to suiuj (summing in ix)
-    DO WITH suiuj(iy,iz)
+    DO FOR ix=0 TO nx AND iz=-nz TO nz
         c=IF ix=0 THEN 1 ELSE 2
-        DO PHIttrsp(i) = ~ -c * PHIttrspd(ix,izd,i).REAL FOR i=1 TO 4
-        DO tcross(i) = ~ -c * PHIttrspd(ix,izd,i).REAL FOR i=1 TO 4
-    FOR ix=0 TO nx AND iz=-nz TO nz
+        DO suiuj(iy,iz).PHIttrsp(i) = ~ -c * PHIttrspd(ix,izd,i).REAL FOR i=1 TO 4
+        DO suiuj(iy,iz).tcross(i) = ~ -c * PHIttrspd(ix,izd,i).REAL FOR i=1 TO 4
+    REPEAT
   REPEAT
 REPEAT fields
 
@@ -270,7 +233,6 @@ REPEAT fields
 ! var,PHIttrsp,psdiss,pstrain
 DO WITH luiuj(iy,iz): var(i)=~/nftot; PHIptrsp(i)=~/nftot; PHIttrsp(i)=~/nftot; psdiss(i)=~/nftot; pstrain(i)=~/nftot; prod(i)=~/nftot; tcross(i)=~/nftot FOR ALL i,iy,iz
 DO WITH suiuj(iy,iz): var(i)=~/nftot; PHIptrsp(i)=~/nftot; PHIttrsp(i)=~/nftot; psdiss(i)=~/nftot; pstrain(i)=~/nftot; prod(i)=~/nftot; tcross(i)=~/nftot FOR ALL i,iy,iz
-!convs(*)=-~/nftot;
 ! PHIvdiff, vdiff
 DO WITH luiuj:  deriv(var(*,iz,i),PHIvdiff(*,iz,i)); LeftLUDivStep2(PHIvdiff(*,iz,i),D0mat); PHIvdiff(*,iz,i)=~*ni; FOR ALL i,iz;
 DO WITH luiuj: deriv2(var(*,iz,i),vdiff(*,iz,i));    LeftLUDivStep2(vdiff(*,iz,i),D0mat);    vdiff(*,iz,i)=~*ni*0.5;    FOR ALL i,iz;
