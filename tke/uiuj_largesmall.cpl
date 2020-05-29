@@ -192,11 +192,11 @@ LOOP fields FOR n=nfmin TO nfmax BY dn
     DO HFT(PHIttrspd(*,iz,i)) FOR ALL i,iz; DO HFT(temp_tcross(*,iz,i)) FOR ALL i,iz
     DO FFT(PHIttrspd(ix,*,i)) FOR ALL i AND ix=0 TO nx;  DO FFT(temp_tcross(ix,*,i)) FOR ALL i AND ix=0 TO nx
     ! Write to luiuj (summing in ix)
-    DO FOR ix=0 TO nx AND iz=-nz TO nz
+    DO
         c=IF ix=0 THEN 1 ELSE 2
         DO luiuj(iy,iz).PHIttrsp(i) = ~ -c * PHIttrspd(ix,izd,i).REAL FOR i=1 TO 4
         DO luiuj(iy,iz).tcross(i) = ~ -c * temp_tcross(ix,izd,i).REAL FOR i=1 TO 4
-    REPEAT
+    FOR ix=0 TO nx AND iz=-nz TO nz
     ! Calculate stuff for small scales
     PHIttrspd = 0; temp_tcross = 0;
     DO
@@ -221,11 +221,11 @@ LOOP fields FOR n=nfmin TO nfmax BY dn
     DO HFT(PHIttrspd(*,iz,i)) FOR ALL i,iz; DO HFT(temp_tcross(*,iz,i)) FOR ALL i,iz
     DO FFT(PHIttrspd(ix,*,i)) FOR ALL i AND ix=0 TO nx;  DO FFT(temp_tcross(ix,*,i)) FOR ALL i AND ix=0 TO nx
     ! Write to suiuj (summing in ix)
-    DO FOR ix=0 TO nx AND iz=-nz TO nz
+    DO
         c=IF ix=0 THEN 1 ELSE 2
         DO suiuj(iy,iz).PHIttrsp(i) = ~ -c * PHIttrspd(ix,izd,i).REAL FOR i=1 TO 4
         DO suiuj(iy,iz).tcross(i) = ~ -c * PHIttrspd(ix,izd,i).REAL FOR i=1 TO 4
-    REPEAT
+    FOR ix=0 TO nx AND iz=-nz TO nz
   REPEAT
 REPEAT fields
 
