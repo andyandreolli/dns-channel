@@ -3,7 +3,7 @@ USE fft
 USE rbmat
 USE parallel
 
-nsmp=1
+nsmp=4
 
 
 ! Parallel - initialization
@@ -389,10 +389,11 @@ SUBROUTINE read_restart_file
 IF restart_file="" THEN
   time=0; V=0
   IF last THEN LOOP FOR iy=HI-10 TO HI
-    DO WITH V(ix,iz,iy): u=0.00001*EXP(RAND()*2*PI*I); v=0.00001*EXP(RAND()*2*PI*I); w=0.00001*EXP(RAND()*2*PI*I) FOR ALL ix,iz
+    DO WITH V(ix,iz,iy): u=0.0001*EXP(RAND()*2*PI*I); v=0.0001*EXP(RAND()*2*PI*I); w=0.0001*EXP(RAND()*2*PI*I) FOR ALL ix,iz
     DO V(0,-iz,iy).u=CONJG(V(0,iz,iy).u);V(0,-iz,iy).v=CONJG(V(0,iz,iy).v);V(0,-iz,iy).w=CONJG(V(0,iz,iy).w) FOR iz=1 TO nz
   REPEAT
-  DO WITH V(0,0,iy): u.REAL=3/4*(1-[1-y(iy)]^2); u.IMAG=0; v=0; w.IMAG=0 FOR iy=V.LO3 TO V.HI3
+  !DO WITH V(0,0,iy): u.REAL=3/4*(1-[1-y(iy)]^2); u.IMAG=0; v=0; w.IMAG=0 FOR iy=V.LO3 TO V.HI3
+  DO WITH V(0,0,iy): u.REAL=y(iy)-1; u.IMAG=0; v=0; w.IMAG=0 FOR iy=V.LO3 TO V.HI3
 ELSE
   IF has_terminal THEN WRITE "Reading from restart_file: ", restart_file
   diskimage = OPEN(restart_file); WITH diskimage:

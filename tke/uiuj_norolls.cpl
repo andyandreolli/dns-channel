@@ -108,6 +108,8 @@ LOOP fields FOR n=nfmin TO nfmax BY dn
   pressure=pressuredata; CLOSE(pressuredata)
   ! Compute fluctuating field
   WITH mean(*),V(0,0,*),Vder(0,0,*): u.REAL=~-U; w.REAL=~-W; pressure(0,0,*)=~-P;
+  ! Remove rolls
+  V(0,-4,*) = 0; V(0,-3,*) = 0; V(0,4,*) = 0; V(0,3,*) = 0;
   ! Compute derivatives
   velocity_gradient(Vder)
   ! Parseval theorem method for var and pstrain
@@ -194,7 +196,6 @@ WITH mke,mean: pump=ni*Uym*U
 ! Write to binary file
 ! ------------------------------------
 POINTER TO STORED STRUCTURE[
-        INTEGER nmin, nmax, deltan, ntot
         ARRAY(-1..ny+1) OF MEANTERMS meandata
         ARRAY(-1..ny+1) OF MKETERMS mkedata
         ARRAY(-1..ny+1) OF BALANCE uiujdata
@@ -202,10 +203,6 @@ POINTER TO STORED STRUCTURE[
 IF NOT first THEN READ FROM prev
   uiujimage = OPEN("uiuj.bin")
   WITH uiujimage:
-    nmin = nfmin
-    nmax = nfmax
-    deltan = dn
-    ntot = nftot
     meandata(miny..maxy)=mean(miny..maxy)
     mkedata(miny..maxy)=mke(miny..maxy)
     uiujdata(miny..maxy)=uiuj(miny..maxy)

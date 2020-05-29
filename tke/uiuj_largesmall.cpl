@@ -1,5 +1,3 @@
-! Originally downloaded from https://raw.githubusercontent.com/davecats/dns-channel/master/tke/uiuj_spectra.cpl
-
 ! This program computes the spectral budget equation for the 
 ! Reynolds stresses (1,1), (2,2), (3,3), (1,2) 
 
@@ -107,30 +105,30 @@ LOOP fields FOR n=nfmin TO nfmax BY dn
     LOOP FOR ALL ix,iz WITH V(ix,iz,iy),Vder(ix,iz,iy), mean(iy):
       p == pressure(ix,iz,iy)
       c=IF ix=0 THEN 1 ELSE 2
-      IF is_large(ix,iz) THEN
-        luiuj.prod(1)= ~ - c*(u|v + v|u).REAL*Uy
-        luiuj.prod(3)= ~ - c*(v|w + w|v).REAL*Wy
-        luiuj.prod(4)= ~ - c*(v|v).REAL*Uy
-        luiuj.var(1) = ~ + c*(u|u).REAL;                               luiuj.var(2) = ~ + c*(v|v).REAL
-        luiuj.var(3) = ~ + c*(w|w).REAL;                               luiuj.var(4) = ~ + c*(u|v + v|u).REAL
-        luiuj.var(5) = ~ + c*(v|w + w|v).REAL;                         luiuj.var(6) = ~ + c*(u|w + w|u).REAL
-        luiuj.PHIptrsp(2) = ~ - c*(v|p + p|v).REAL;                    luiuj.PHIptrsp(4) = ~ - c*(p|u).REAL
-        luiuj.pstrain(1) = ~ + c*[ux|p + p|ux].REAL;                   luiuj.pstrain(2) = ~ + c*[vy|p + p|vy].REAL
-        luiuj.pstrain(3) = ~ + c*[wz|p + p|wz].REAL;                   luiuj.pstrain(4) = ~ + c*[vx|p + p|uy].REAL
-        luiuj.psdiss(1)= ~ - 2*ni*c*[ux|ux + uy|uy + uz|uz].REAL;      luiuj.psdiss(2)=~-2*ni*c*[vx|vx + vy|vy + vz|vz].REAL
-        luiuj.psdiss(3)= ~ - 2*ni*c*[wx|wx + wy|wy + wz|wz].REAL;      luiuj.psdiss(4)=~-2*ni*c*[ux|vx + uy|vy + uz|vz].REAL
-      ELSE
-        suiuj.prod(1)= ~ - c*(u|v + v|u).REAL*Uy
-        suiuj.prod(3)= ~ - c*(v|w + w|v).REAL*Wy
-        suiuj.prod(4)= ~ - c*(v|v).REAL*Uy
-        suiuj.var(1) = ~ + c*(u|u).REAL;                               suiuj.var(2) = ~ + c*(v|v).REAL
-        suiuj.var(3) = ~ + c*(w|w).REAL;                               suiuj.var(4) = ~ + c*(u|v + v|u).REAL
-        suiuj.var(5) = ~ + c*(v|w + w|v).REAL;                         suiuj.var(6) = ~ + c*(u|w + w|u).REAL
-        suiuj.PHIptrsp(2) = ~ - c*(v|p + p|v).REAL;                    suiuj.PHIptrsp(4) = ~ - c*(p|u).REAL
-        suiuj.pstrain(1) = ~ + c*[ux|p + p|ux].REAL;                   suiuj.pstrain(2) = ~ + c*[vy|p + p|vy].REAL
-        suiuj.pstrain(3) = ~ + c*[wz|p + p|wz].REAL;                   suiuj.pstrain(4) = ~ + c*[vx|p + p|uy].REAL
-        suiuj.psdiss(1)= ~ - 2*ni*c*[ux|ux + uy|uy + uz|uz].REAL;      suiuj.psdiss(2)=~-2*ni*c*[vx|vx + vy|vy + vz|vz].REAL
-        suiuj.psdiss(3)= ~ - 2*ni*c*[wx|wx + wy|wy + wz|wz].REAL;      suiuj.psdiss(4)=~-2*ni*c*[ux|vx + uy|vy + uz|vz].REAL
+      IF is_large(ix,iz) THEN WITH(luiuj(iy,iz)):
+        prod(1)= ~ - c*(u|v + v|u).REAL*Uy
+        prod(3)= ~ - c*(v|w + w|v).REAL*Wy
+        prod(4)= ~ - c*(v|v).REAL*Uy
+        var(1) = ~ + c*(u|u).REAL;                               var(2) = ~ + c*(v|v).REAL
+        var(3) = ~ + c*(w|w).REAL;                               var(4) = ~ + c*(u|v + v|u).REAL
+        var(5) = ~ + c*(v|w + w|v).REAL;                         var(6) = ~ + c*(u|w + w|u).REAL
+        PHIptrsp(2) = ~ - c*(v|p + p|v).REAL;                    PHIptrsp(4) = ~ - c*(p|u).REAL
+        pstrain(1) = ~ + c*[ux|p + p|ux].REAL;                   pstrain(2) = ~ + c*[vy|p + p|vy].REAL
+        pstrain(3) = ~ + c*[wz|p + p|wz].REAL;                   pstrain(4) = ~ + c*[vx|p + p|uy].REAL
+        psdiss(1)= ~ - 2*ni*c*[ux|ux + uy|uy + uz|uz].REAL;      psdiss(2)=~-2*ni*c*[vx|vx + vy|vy + vz|vz].REAL
+        psdiss(3)= ~ - 2*ni*c*[wx|wx + wy|wy + wz|wz].REAL;      psdiss(4)=~-2*ni*c*[ux|vx + uy|vy + uz|vz].REAL
+      ELSE WITH(suiuj(iy,iz)):
+        prod(1)= ~ - c*(u|v + v|u).REAL*Uy
+        prod(3)= ~ - c*(v|w + w|v).REAL*Wy
+        prod(4)= ~ - c*(v|v).REAL*Uy
+        var(1) = ~ + c*(u|u).REAL;                               var(2) = ~ + c*(v|v).REAL
+        var(3) = ~ + c*(w|w).REAL;                               var(4) = ~ + c*(u|v + v|u).REAL
+        var(5) = ~ + c*(v|w + w|v).REAL;                         var(6) = ~ + c*(u|w + w|u).REAL
+        PHIptrsp(2) = ~ - c*(v|p + p|v).REAL;                    PHIptrsp(4) = ~ - c*(p|u).REAL
+        pstrain(1) = ~ + c*[ux|p + p|ux].REAL;                   pstrain(2) = ~ + c*[vy|p + p|vy].REAL
+        pstrain(3) = ~ + c*[wz|p + p|wz].REAL;                   pstrain(4) = ~ + c*[vx|p + p|uy].REAL
+        psdiss(1)= ~ - 2*ni*c*[ux|ux + uy|uy + uz|uz].REAL;      psdiss(2)=~-2*ni*c*[vx|vx + vy|vy + vz|vz].REAL
+        psdiss(3)= ~ - 2*ni*c*[wx|wx + wy|wy + wz|wz].REAL;      psdiss(4)=~-2*ni*c*[ux|vx + uy|vy + uz|vz].REAL
       END IF
     REPEAT
   REPEAT
@@ -292,6 +290,7 @@ DO suiujprofiles(iy,i)=[SUM suiuj(iy,iz,i) FOR ALL iz] FOR ALL i AND iy=miny TO 
 ! Write to binary file
 ! ------------------------------------
 POINTER TO STORED STRUCTURE[
+        INTEGER nmin, nmax, deltan, ntot
         ARRAY(-1..ny+1) OF MEANTERMS meandata
         ARRAY(-1..ny+1,-nz..nz) OF BALANCE luiujdata
         ARRAY(-1..ny+1,-nz..nz) OF BALANCE suiujdata
@@ -301,6 +300,10 @@ POINTER TO STORED STRUCTURE[
 IF NOT first THEN READ FROM prev
   uiujimage = OPEN("uiuj_largesmall.bin")
   WITH uiujimage:
+    nmin = nfmin
+    nmax = nfmax
+    deltan = dn
+    ntot = nftot
     meandata(miny..maxy)=mean(miny..maxy)
     luiujdata(miny..maxy)=luiuj(miny..maxy)
     suiujdata(miny..maxy)=suiuj(miny..maxy)
