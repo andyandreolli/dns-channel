@@ -117,7 +117,7 @@ LOOP fields FOR n=nfmin TO nfmax BY dn
         pstrain(3) = ~ + c*[wz|p + p|wz].REAL;                   pstrain(4) = ~ + c*[vx|p + p|uy].REAL
         psdiss(1)= ~ - 2*ni*c*[ux|ux + uy|uy + uz|uz].REAL;      psdiss(2)=~-2*ni*c*[vx|vx + vy|vy + vz|vz].REAL
         psdiss(3)= ~ - 2*ni*c*[wx|wx + wy|wy + wz|wz].REAL;      psdiss(4)=~-2*ni*c*[ux|vx + uy|vy + uz|vz].REAL
-      ELSE WITH(suiujprofiles(iy,iz)):
+      ELSE WITH(suiujprofiles(iy)):
         prod(1)= ~ - c*(u|v + v|u).REAL*Uy
         prod(3)= ~ - c*(v|w + w|v).REAL*Wy
         prod(4)= ~ - c*(v|v).REAL*Uy
