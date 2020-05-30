@@ -192,12 +192,12 @@ LOOP fields FOR n=nfmin TO nfmax BY dn
     DO HFT(PHIttrspd(*,iz,i)) FOR ALL i,iz; DO HFT(temp_tcross(*,iz,i)) FOR ALL i,iz
     DO FFT(PHIttrspd(ix,*,i)) FOR ALL i AND ix=0 TO nx;  DO FFT(temp_tcross(ix,*,i)) FOR ALL i AND ix=0 TO nx
     ! Write to luiujprofile (summing in ix)
-    DO
+    DO FOR ix=0 TO nx AND iz=-nz TO nz
         c=IF ix=0 THEN 1 ELSE 2
         DO luiujprofiles(iy).PHIttrsp(i) = ~ - PHIttrspd(0,0,i).REAL
         DO luiujprofiles(iy).tcross(i) = ~ - temp_tcross(0,0,i).REAL
         ! FIXME: sbagliato! Guarda solo il modo 0,0
-    FOR ix=0 TO nx AND iz=-nz TO nz
+    REPEAT
     ! Calculate stuff for small scales
     PHIttrspd = 0; temp_tcross = 0;
     DO
@@ -222,12 +222,12 @@ LOOP fields FOR n=nfmin TO nfmax BY dn
     DO HFT(PHIttrspd(*,iz,i)) FOR ALL i,iz; DO HFT(temp_tcross(*,iz,i)) FOR ALL i,iz
     DO FFT(PHIttrspd(ix,*,i)) FOR ALL i AND ix=0 TO nx;  DO FFT(temp_tcross(ix,*,i)) FOR ALL i AND ix=0 TO nx
     ! Write to suiujprofiles (summing in ix)
-    DO
+    DO FOR ix=0 TO nx AND iz=-nz TO nz
         c=IF ix=0 THEN 1 ELSE 2
         DO suiujprofiles(iy).PHIttrsp(i) = ~ - PHIttrspd(0,0,i).REAL
         DO suiujprofiles(iy).tcross(i) = ~ - PHIttrspd(0,0,i).REAL
         ! FIXME: sbagliato! Guarda solo il modo 0,0
-    FOR ix=0 TO nx AND iz=-nz TO nz
+    REPEAT
   REPEAT
 REPEAT fields
 
