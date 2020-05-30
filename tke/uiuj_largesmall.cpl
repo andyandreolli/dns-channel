@@ -53,9 +53,9 @@ SHARED ARRAY(0..nxd-1,0..nzd-1,1..4) OF COMPLEX temp_tcross=0
 
 !SHARED ARRAY(nyl-2..nyh+2,0..nz,-nz..nz) OF STRUCTURED ARRAY(uu,vv,ww,uv) OF REAL convs=0
 SHARED ARRAY(nyl-2..nyh+2) OF MEANTERMS mean=0
-SHARED ARRAY(nyl-2..nyh+2,-nz..nz) OF BALANCE suiuj=0
+SHARED ARRAY(nyl-2..nyh+2,-nz..nz) OF BALANCE suiuj=0 ! FIXME: inutile - scrivi direttamente su profiles
 SHARED ARRAY(nyl-2..nyh+2) OF BALANCE suiujprofiles=0
-SHARED ARRAY(nyl-2..nyh+2,-nz..nz) OF BALANCE luiuj=0
+SHARED ARRAY(nyl-2..nyh+2,-nz..nz) OF BALANCE luiuj=0 ! FIXME: inutile - scrivi direttamente su profiles
 SHARED ARRAY(nyl-2..nyh+2) OF BALANCE luiujprofiles=0
 ARRAY(-nz..nz) OF INTEGER izdV=0; DO izdV(iz)=IF iz>=0 THEN iz ELSE nzd+iz FOR iz=-nz TO nz
 izd==izdV(iz)
@@ -105,7 +105,7 @@ LOOP fields FOR n=nfmin TO nfmax BY dn
     LOOP FOR ALL ix,iz WITH V(ix,iz,iy),Vder(ix,iz,iy), mean(iy):
       p == pressure(ix,iz,iy)
       c=IF ix=0 THEN 1 ELSE 2
-      IF is_large(ix,iz) THEN WITH(luiuj(iy,iz)):
+      IF is_large(ix,iz) THEN WITH(luiujprofiles(iy)):
         prod(1)= ~ - c*(u|v + v|u).REAL*Uy
         prod(3)= ~ - c*(v|w + w|v).REAL*Wy
         prod(4)= ~ - c*(v|v).REAL*Uy
@@ -117,7 +117,7 @@ LOOP fields FOR n=nfmin TO nfmax BY dn
         pstrain(3) = ~ + c*[wz|p + p|wz].REAL;                   pstrain(4) = ~ + c*[vx|p + p|uy].REAL
         psdiss(1)= ~ - 2*ni*c*[ux|ux + uy|uy + uz|uz].REAL;      psdiss(2)=~-2*ni*c*[vx|vx + vy|vy + vz|vz].REAL
         psdiss(3)= ~ - 2*ni*c*[wx|wx + wy|wy + wz|wz].REAL;      psdiss(4)=~-2*ni*c*[ux|vx + uy|vy + uz|vz].REAL
-      ELSE WITH(suiuj(iy,iz)):
+      ELSE WITH(suiujprofiles(iy,iz)):
         prod(1)= ~ - c*(u|v + v|u).REAL*Uy
         prod(3)= ~ - c*(v|w + w|v).REAL*Wy
         prod(4)= ~ - c*(v|v).REAL*Uy
@@ -191,11 +191,12 @@ LOOP fields FOR n=nfmin TO nfmax BY dn
     ! Fourier transform
     DO HFT(PHIttrspd(*,iz,i)) FOR ALL i,iz; DO HFT(temp_tcross(*,iz,i)) FOR ALL i,iz
     DO FFT(PHIttrspd(ix,*,i)) FOR ALL i AND ix=0 TO nx;  DO FFT(temp_tcross(ix,*,i)) FOR ALL i AND ix=0 TO nx
-    ! Write to luiuj (summing in ix)
+    ! Write to luiujprofile (summing in ix)
     DO
         c=IF ix=0 THEN 1 ELSE 2
-        DO luiuj(iy,iz).PHIttrsp(i) = ~ -c * PHIttrspd(ix,izd,i).REAL FOR i=1 TO 4
-        DO luiuj(iy,iz).tcross(i) = ~ -c * temp_tcross(ix,izd,i).REAL FOR i=1 TO 4
+        DO luiujprofiles(iy).PHIttrsp(i) = ~ - PHIttrspd(0,0,i).REAL
+        DO luiujprofiles(iy).tcross(i) = ~ - temp_tcross(0,0,i).REAL
+        ! FIXME: sbagliato! Guarda solo il modo 0,0
     FOR ix=0 TO nx AND iz=-nz TO nz
     ! Calculate stuff for small scales
     PHIttrspd = 0; temp_tcross = 0;
@@ -220,32 +221,33 @@ LOOP fields FOR n=nfmin TO nfmax BY dn
     ! Fourier transform
     DO HFT(PHIttrspd(*,iz,i)) FOR ALL i,iz; DO HFT(temp_tcross(*,iz,i)) FOR ALL i,iz
     DO FFT(PHIttrspd(ix,*,i)) FOR ALL i AND ix=0 TO nx;  DO FFT(temp_tcross(ix,*,i)) FOR ALL i AND ix=0 TO nx
-    ! Write to suiuj (summing in ix)
+    ! Write to suiujprofiles (summing in ix)
     DO
         c=IF ix=0 THEN 1 ELSE 2
-        DO suiuj(iy,iz).PHIttrsp(i) = ~ -c * PHIttrspd(ix,izd,i).REAL FOR i=1 TO 4
-        DO suiuj(iy,iz).tcross(i) = ~ -c * PHIttrspd(ix,izd,i).REAL FOR i=1 TO 4
+        DO suiujprofiles(iy).PHIttrsp(i) = ~ - PHIttrspd(0,0,i).REAL
+        DO suiujprofiles(iy).tcross(i) = ~ - PHIttrspd(0,0,i).REAL
+        ! FIXME: sbagliato! Guarda solo il modo 0,0
     FOR ix=0 TO nx AND iz=-nz TO nz
   REPEAT
 REPEAT fields
 
 
 ! var,PHIttrsp,psdiss,pstrain
-DO WITH luiuj(iy,iz): var(i)=~/nftot; PHIptrsp(i)=~/nftot; PHIttrsp(i)=~/nftot; psdiss(i)=~/nftot; pstrain(i)=~/nftot; prod(i)=~/nftot; tcross(i)=~/nftot FOR ALL i,iy,iz
-DO WITH suiuj(iy,iz): var(i)=~/nftot; PHIptrsp(i)=~/nftot; PHIttrsp(i)=~/nftot; psdiss(i)=~/nftot; pstrain(i)=~/nftot; prod(i)=~/nftot; tcross(i)=~/nftot FOR ALL i,iy,iz
+DO WITH luiujprofiles(iy): var(i)=~/nftot; PHIptrsp(i)=~/nftot; PHIttrsp(i)=~/nftot; psdiss(i)=~/nftot; pstrain(i)=~/nftot; prod(i)=~/nftot; tcross(i)=~/nftot FOR ALL i,iy
+DO WITH suiujprofiles(iy): var(i)=~/nftot; PHIptrsp(i)=~/nftot; PHIttrsp(i)=~/nftot; psdiss(i)=~/nftot; pstrain(i)=~/nftot; prod(i)=~/nftot; tcross(i)=~/nftot FOR ALL i,iy
 ! PHIvdiff, vdiff
-DO WITH luiuj:  deriv(var(*,iz,i),PHIvdiff(*,iz,i)); LeftLUDivStep2(PHIvdiff(*,iz,i),D0mat); PHIvdiff(*,iz,i)=~*ni; FOR ALL i,iz;
-DO WITH luiuj: deriv2(var(*,iz,i),vdiff(*,iz,i));    LeftLUDivStep2(vdiff(*,iz,i),D0mat);    vdiff(*,iz,i)=~*ni*0.5;    FOR ALL i,iz;
-DO WITH suiuj:  deriv(var(*,iz,i),PHIvdiff(*,iz,i)); LeftLUDivStep2(PHIvdiff(*,iz,i),D0mat); PHIvdiff(*,iz,i)=~*ni; FOR ALL i,iz;
-DO WITH suiuj: deriv2(var(*,iz,i),vdiff(*,iz,i));    LeftLUDivStep2(vdiff(*,iz,i),D0mat);    vdiff(*,iz,i)=~*ni*0.5;    FOR ALL i,iz;
+DO WITH luiujprofiles:  deriv(var(*,i),PHIvdiff(*,i)); LeftLUDivStep2(PHIvdiff(*,i),D0mat); PHIvdiff(*,i)=~*ni;     FOR ALL i;
+DO WITH luiujprofiles: deriv2(var(*,i),vdiff(*,i));    LeftLUDivStep2(vdiff(*,i),D0mat);    vdiff(*,i)=~*ni*0.5;    FOR ALL i;
+DO WITH suiujprofiles:  deriv(var(*,i),PHIvdiff(*,i)); LeftLUDivStep2(PHIvdiff(*,i),D0mat); PHIvdiff(*,i)=~*ni;     FOR ALL i;
+DO WITH suiujprofiles: deriv2(var(*,i),vdiff(*,i));    LeftLUDivStep2(vdiff(*,i),D0mat);    vdiff(*,i)=~*ni*0.5;    FOR ALL i;
 ! ptrsp, ttrsp
-DO WITH luiuj: deriv(PHIptrsp(*,iz,i),ptrsp(*,iz,i)); LeftLUDivStep2(ptrsp(*,iz,i),D0mat); FOR ALL i,iz;
-DO WITH luiuj: deriv(PHIttrsp(*,iz,i),ttrsp(*,iz,i)); LeftLUDivStep2(ttrsp(*,iz,i),D0mat); FOR ALL i,iz;
-DO WITH suiuj: deriv(PHIptrsp(*,iz,i),ptrsp(*,iz,i)); LeftLUDivStep2(ptrsp(*,iz,i),D0mat); FOR ALL i,iz;
-DO WITH suiuj: deriv(PHIttrsp(*,iz,i),ttrsp(*,iz,i)); LeftLUDivStep2(ttrsp(*,iz,i),D0mat); FOR ALL i,iz;
+DO WITH luiujprofiles: deriv(PHIptrsp(*,i),ptrsp(*,i)); LeftLUDivStep2(ptrsp(*,i),D0mat); FOR ALL i;
+DO WITH luiujprofiles: deriv(PHIttrsp(*,i),ttrsp(*,i)); LeftLUDivStep2(ttrsp(*,i),D0mat); FOR ALL i;
+DO WITH suiujprofiles: deriv(PHIptrsp(*,i),ptrsp(*,i)); LeftLUDivStep2(ptrsp(*,i),D0mat); FOR ALL i;
+DO WITH suiujprofiles: deriv(PHIttrsp(*,i),ttrsp(*,i)); LeftLUDivStep2(ttrsp(*,i),D0mat); FOR ALL i;
 ! profiles
-DO luiujprofiles(iy,i)=[SUM luiuj(iy,iz,i) FOR ALL iz] FOR ALL i AND iy=miny TO maxy
-DO suiujprofiles(iy,i)=[SUM suiuj(iy,iz,i) FOR ALL iz] FOR ALL i AND iy=miny TO maxy
+!DO luiujprofiles(iy,i)=[SUM luiuj(iy,iz,i) FOR ALL iz] FOR ALL i AND iy=miny TO maxy
+!DO suiujprofiles(iy,i)=[SUM suiuj(iy,iz,i) FOR ALL iz] FOR ALL i AND iy=miny TO maxy
 
 
 
@@ -254,8 +256,6 @@ DO suiujprofiles(iy,i)=[SUM suiuj(iy,iz,i) FOR ALL iz] FOR ALL i AND iy=miny TO 
 POINTER TO STORED STRUCTURE[
         INTEGER nmin, nmax, deltan, ntot
         ARRAY(-1..ny+1) OF MEANTERMS meandata
-        ARRAY(-1..ny+1,-nz..nz) OF BALANCE luiujdata
-        ARRAY(-1..ny+1,-nz..nz) OF BALANCE suiujdata
         ARRAY(-1..ny+1) OF BALANCE luiujprofilesdata
         ARRAY(-1..ny+1) OF BALANCE suiujprofilesdata
 ] uiujimage
@@ -267,8 +267,6 @@ IF NOT first THEN READ FROM prev
     deltan = dn
     ntot = nftot
     meandata(miny..maxy)=mean(miny..maxy)
-    luiujdata(miny..maxy)=luiuj(miny..maxy)
-    suiujdata(miny..maxy)=suiuj(miny..maxy)
     luiujprofilesdata(miny..maxy)=luiujprofiles(miny..maxy)
     suiujprofilesdata(miny..maxy)=suiujprofiles(miny..maxy)
   CLOSE(uiujimage)

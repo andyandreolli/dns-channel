@@ -31,8 +31,6 @@ BALANCE = STRUCTURED ARRAY(var,prod,psdiss,ttrsp,tcross,vdiff,pstrain,ptrsp,PHIt
 POINTER TO STORED STRUCTURE[
         INTEGER nmin, nmax, deltan, ntot
         ARRAY(-1..ny+1) OF MEANTERMS meandata
-        ARRAY(-1..ny+1,-nz..nz) OF BALANCE luiujdata
-        ARRAY(-1..ny+1,-nz..nz) OF BALANCE suiujdata
         ARRAY(-1..ny+1) OF BALANCE luiujprofilesdata
         ARRAY(-1..ny+1) OF BALANCE suiujprofilesdata
 ] uiujimage
