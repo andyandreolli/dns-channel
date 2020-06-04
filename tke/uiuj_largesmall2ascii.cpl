@@ -90,13 +90,13 @@ CLOSE(outfile)
 ! tke - integrals
 FILE outfile=CREATE("tkeintegrals_large.dat")
 WITH uiujimage WRITE TO outfile "Averaged on fields from " nmin " to " nmax " with dn=" deltan "; total number of fields = " ntot
-WRITE TO outfile "var","prod","psdiss","ttrsp","vdiff","pstrain","ptrsp"
-WITH uiujimage.luiujprofilesdata(*): WRITE TO outfile sumint(var)/2,sumint(prod)/2,sumint(psdiss)/2,sumint(ttrsp)/2,sumint(vdiff)/2,sumint(pstrain)/2,sumint(ptrsp)/2
+WRITE TO outfile "var","prod","psdiss","ttrsp","tcross","vdiff","pstrain","ptrsp"
+WITH uiujimage.luiujprofilesdata(*): WRITE TO outfile sumint(var)/2,sumint(prod)/2,sumint(psdiss)/2,sumint(ttrsp)/2,sumint(tcross)/2,sumint(vdiff)/2,sumint(pstrain)/2,sumint(ptrsp)/2
 CLOSE(outfile)
 FILE outfile=CREATE("tkeintegrals_small.dat")
 WITH uiujimage WRITE TO outfile "Averaged on fields from " nmin " to " nmax " with dn=" deltan "; total number of fields = " ntot
-WRITE TO outfile "var","prod","psdiss","ttrsp","vdiff","pstrain","ptrsp"
-WITH uiujimage.suiujprofilesdata(*): WRITE TO outfile sumint(var)/2,sumint(prod)/2,sumint(psdiss)/2,sumint(ttrsp)/2,sumint(vdiff)/2,sumint(pstrain)/2,sumint(ptrsp)/2
+WRITE TO outfile "var","prod","psdiss","ttrsp","tcross","vdiff","pstrain","ptrsp"
+WITH uiujimage.suiujprofilesdata(*): WRITE TO outfile sumint(var)/2,sumint(prod)/2,sumint(psdiss)/2,sumint(ttrsp)/2,sumint(tcross)/2,sumint(vdiff)/2,sumint(pstrain)/2,sumint(ptrsp)/2
 CLOSE(outfile)
 ! mean
 FILE outfile=CREATE("mean.dat")
