@@ -229,9 +229,9 @@ DO WITH luiujprofiles(iy): var(i)=~/nftot; PHIptrsp(i)=~/nftot; PHIttrsp(i)=~/nf
 DO WITH suiujprofiles(iy): var(i)=~/nftot; PHIptrsp(i)=~/nftot; PHIttrsp(i)=~/nftot; psdiss(i)=~/nftot; pstrain(i)=~/nftot; prod(i)=~/nftot; tcross(i)=~/nftot FOR ALL i,iy
 ! PHIvdiff, vdiff
 DO WITH luiujprofiles:  deriv(var(*,i),PHIvdiff(*,i)); LeftLUDivStep2(PHIvdiff(*,i),D0mat); PHIvdiff(*,i)=~*ni;     FOR ALL i;
-DO WITH luiujprofiles: deriv2(var(*,i),vdiff(*,i));    LeftLUDivStep2(vdiff(*,i),D0mat);    vdiff(*,i)=~*ni*0.5;    FOR ALL i;
+DO WITH luiujprofiles: deriv2(var(*,i),vdiff(*,i));    LeftLUDivStep2(vdiff(*,i),D0mat);    vdiff(*,i)=~*ni;    FOR ALL i;
 DO WITH suiujprofiles:  deriv(var(*,i),PHIvdiff(*,i)); LeftLUDivStep2(PHIvdiff(*,i),D0mat); PHIvdiff(*,i)=~*ni;     FOR ALL i;
-DO WITH suiujprofiles: deriv2(var(*,i),vdiff(*,i));    LeftLUDivStep2(vdiff(*,i),D0mat);    vdiff(*,i)=~*ni*0.5;    FOR ALL i;
+DO WITH suiujprofiles: deriv2(var(*,i),vdiff(*,i));    LeftLUDivStep2(vdiff(*,i),D0mat);    vdiff(*,i)=~*ni;    FOR ALL i;
 ! ptrsp, ttrsp
 DO WITH luiujprofiles: deriv(PHIptrsp(*,i),ptrsp(*,i)); LeftLUDivStep2(ptrsp(*,i),D0mat); FOR ALL i;
 DO WITH luiujprofiles: deriv(PHIttrsp(*,i),ttrsp(*,i)); LeftLUDivStep2(ttrsp(*,i),D0mat); FOR ALL i;
