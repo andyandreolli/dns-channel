@@ -53,9 +53,7 @@ SHARED ARRAY(0..nxd-1,0..nzd-1,1..4) OF COMPLEX temp_tcross=0
 
 !SHARED ARRAY(nyl-2..nyh+2,0..nz,-nz..nz) OF STRUCTURED ARRAY(uu,vv,ww,uv) OF REAL convs=0
 SHARED ARRAY(nyl-2..nyh+2) OF MEANTERMS mean=0
-SHARED ARRAY(nyl-2..nyh+2,-nz..nz) OF BALANCE suiuj=0 ! FIXME: inutile - scrivi direttamente su profiles
 SHARED ARRAY(nyl-2..nyh+2) OF BALANCE suiujprofiles=0
-SHARED ARRAY(nyl-2..nyh+2,-nz..nz) OF BALANCE luiuj=0 ! FIXME: inutile - scrivi direttamente su profiles
 SHARED ARRAY(nyl-2..nyh+2) OF BALANCE luiujprofiles=0
 ARRAY(-nz..nz) OF INTEGER izdV=0; DO izdV(iz)=IF iz>=0 THEN iz ELSE nzd+iz FOR iz=-nz TO nz
 izd==izdV(iz)
@@ -219,7 +217,7 @@ LOOP fields FOR n=nfmin TO nfmax BY dn
     DO FFT(PHIttrspd(ix,*,i)) FOR ALL i AND ix=0 TO nx;  DO FFT(temp_tcross(ix,*,i)) FOR ALL i AND ix=0 TO nx
     ! Write to suiujprofiles
     DO suiujprofiles(iy).PHIttrsp(i) = ~ - PHIttrspd(0,0,i).REAL FOR ALL i
-    DO suiujprofiles(iy).tcross(i) = ~ - PHIttrspd(0,0,i).REAL FOR ALL i
+    DO suiujprofiles(iy).tcross(i) = ~ - temp_tcross(0,0,i).REAL FOR ALL i
   REPEAT
 REPEAT fields
 
@@ -237,9 +235,6 @@ DO WITH luiujprofiles: deriv(PHIptrsp(*,i),ptrsp(*,i)); LeftLUDivStep2(ptrsp(*,i
 DO WITH luiujprofiles: deriv(PHIttrsp(*,i),ttrsp(*,i)); LeftLUDivStep2(ttrsp(*,i),D0mat); FOR ALL i;
 DO WITH suiujprofiles: deriv(PHIptrsp(*,i),ptrsp(*,i)); LeftLUDivStep2(ptrsp(*,i),D0mat); FOR ALL i;
 DO WITH suiujprofiles: deriv(PHIttrsp(*,i),ttrsp(*,i)); LeftLUDivStep2(ttrsp(*,i),D0mat); FOR ALL i;
-! profiles
-!DO luiujprofiles(iy,i)=[SUM luiuj(iy,iz,i) FOR ALL iz] FOR ALL i AND iy=miny TO maxy
-!DO suiujprofiles(iy,i)=[SUM suiuj(iy,iz,i) FOR ALL iz] FOR ALL i AND iy=miny TO maxy
 
 
 
@@ -268,7 +263,3 @@ IF NOT last THEN WRITE TO next
 ! ------------------------------------
 WRITE " "
 WRITE "Goodbye, man!"
-
-
-
-! TODO: definisci una subroutine is_large(ix,iz)
