@@ -13,14 +13,12 @@ def read_dnsin(fdir):
 
     spltmark = '\n'
 
-    foundequal = False
-    foundvalue = False
-
     for line in temp:
         if 'restart_file' or 'time_from_restart' in line:
             continue
         line = line.replace('\t',' ')
-        #print(line.replace('\n',''))
+        foundequal = False
+        foundvalue = False
         for char in line:
             tmpln += char
             if not foundequal:
@@ -34,12 +32,17 @@ def read_dnsin(fdir):
                     tmpln += spltmark
                     foundequal = False
                     foundvalue = False
-    tmpln = tmpln.replace(' ', '')
+    tmpln = tmpln.replace(' ', '') # remove white spaces
+    tmpln = tmpln.replace('\n\n','\n') # remove multiple endlines
 
+    # now tmpln is a single string with endlines, where each line reads "something=somevalue" without spaces
+    # it's going to be turned into a dictionary
 
-    exec(tmpln)
+    tmpln = tmpln.replace('=',':') # replace equals with :
+    tmpln = tmpln.replace('\n',',') # replace endlines with commas
+    tmpln = '{' + tmpln + '}' # add square brackets around
 
-    return nx, ny, nz, ni
+    return eval(tmpln)
 
 
 
