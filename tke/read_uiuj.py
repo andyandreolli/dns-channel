@@ -96,7 +96,7 @@ def read_integrals(fdir, **kwargs):
 
     # create list of panda dataframes and initialise dictionaries
     pandalist = [uvPanda, uuPanda, vvPanda, wwPanda, kkPanda, mkPanda]
-    uv = {}; uu = {}; vv = {}; ww = {}; kk = []; mk = {}
+    uv = {}; uu = {}; vv = {}; ww = {}; kk = {}; mk = {}
     dictlist = [uv, uu, vv, ww, kk, mk]
     for pnd,dct in zip(pandalist,dictlist):
         for term in pnd:
