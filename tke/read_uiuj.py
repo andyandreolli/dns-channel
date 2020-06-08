@@ -99,8 +99,9 @@ def read_integrals(fdir, **kwargs):
     uv = {}; uu = {}; vv = {}; ww = {}; kk = {}; mk = {}
     dictlist = [uv, uu, vv, ww, kk, mk]
     for pnd,dct in zip(pandalist,dictlist):
-        for term in pnd:
-            dct.update({term:pnd[term]})
+        if not pnd == None:
+            for term in pnd:
+                dct.update({term:pnd[term]})
 
     return uv, uu, vv, ww, kk, mk
 
