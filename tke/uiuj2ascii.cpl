@@ -63,7 +63,7 @@ CLOSE(outfile)
 FILE outfile=CREATE("tkeintegrals.dat")
 WITH uiujimage WRITE TO outfile "Averaged on fields from " nmin " to " nmax " with dn=" deltan "; total number of fields = " ntot
 WRITE TO outfile "var","prod","psdiss","ttrsp","vdiff","pstrain","ptrsp"
-WITH uiujimage.uiujdata(*): WRITE TO outfile sumint(var),sumint(prod),sumint(psdiss),sumint(ttrsp),sumint(vdiff),sumint(pstrain),sumint(ptrsp)
+WITH uiujimage.uiujdata(*): WRITE TO outfile sumint(var)/2,sumint(prod)/2,sumint(psdiss)/2,sumint(ttrsp)/2,sumint(vdiff)/2,sumint(pstrain)/2,sumint(ptrsp)/2
 CLOSE(outfile)
 ! mke
 FILE outfile=CREATE("mke.dat")
