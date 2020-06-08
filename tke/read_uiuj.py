@@ -101,7 +101,7 @@ def read_integrals(fdir, **kwargs):
     for pnd,dct in zip(pandalist,dictlist):
         if not pnd is None:
             for term in pnd:
-                dct.update({term:pnd[term]})
+                dct.update({term:pnd[term].iat[0]})
 
     return uv, uu, vv, ww, kk, mk
 
