@@ -120,8 +120,8 @@ LOOP fields FOR n=nfmin TO nfmax BY dn
         prod(3)= ~ - c*(v|w + w|v).REAL*Wy
         prod(4)= ~ - c*(v|v).REAL*Uy
         var(1) = ~ + c*(u|u).REAL;                               var(2) = ~ + c*(v|v).REAL
-        var(3) = ~ + c*(w|w).REAL;                               var(4) = ~ + c*(u|v + v|u).REAL
-        var(5) = ~ + c*(v|w + w|v).REAL;                         var(6) = ~ + c*(u|w + w|u).REAL
+        var(3) = ~ + c*(w|w).REAL;                               var(4) = ~ + c*(u|v).REAL
+        var(5) = ~ + c*(v|w).REAL;                               var(6) = ~ + c*(u|w).REAL
         PHIptrsp(2) = ~ - c*(v|p + p|v).REAL;                    PHIptrsp(4) = ~ - c*(p|u).REAL
         pstrain(1) = ~ + c*[ux|p + p|ux].REAL;                   pstrain(2) = ~ + c*[vy|p + p|vy].REAL
         pstrain(3) = ~ + c*[wz|p + p|wz].REAL;                   pstrain(4) = ~ + c*[vx|p + p|uy].REAL
