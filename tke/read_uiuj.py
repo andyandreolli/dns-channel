@@ -2,6 +2,47 @@ import pandas as pd
 
 
 
+def read_dnsin(fdir):
+
+    fdir = './/'
+
+    with open(fdir + 'dns.in') as dnsin:
+        temp = dnsin.readlines()
+
+    tmpln = ''
+
+    spltmark = '\n'
+
+    foundequal = False
+    foundvalue = False
+
+    for line in temp:
+        if 'restart_file' or 'time_from_restart' in line:
+            continue
+        line = line.replace('\t',' ')
+        #print(line.replace('\n',''))
+        for char in line:
+            tmpln += char
+            if not foundequal:
+                if char == '=':
+                    foundequal = True
+            elif not foundvalue:
+                if not char == ' ':
+                    foundvalue = True
+            else:
+                if char == ' ':
+                    tmpln += spltmark
+                    foundequal = False
+                    foundvalue = False
+    tmpln = tmpln.replace(' ', '')
+
+
+    exec(tmpln)
+
+    return nx, ny, nz, ni
+
+
+
 def read(fdir, **kwargs):
 
     # runtimePanda, mePanda, uvPanda, uuPanda, vvPanda, wwPanda, kkPanda, mkPanda = read(fdir, invert_sss=False, variant=None, head_len=1)
