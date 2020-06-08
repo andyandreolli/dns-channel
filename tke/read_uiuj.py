@@ -92,7 +92,7 @@ def read_integrals(fdir, **kwargs):
     if variant=='large' or variant =='small':
         mkPanda = None
     else:
-        mkPanda = pd.read_csv(fdir + filenames[6], header = head_len, delim_whitespace=True) # mean kinetic energy
+        mkPanda = pd.read_csv(fdir + filenames[5], header = head_len, delim_whitespace=True) # mean kinetic energy
 
     # create list of panda dataframes and initialise dictionaries
     pandalist = [uvPanda, uuPanda, vvPanda, wwPanda, kkPanda, mkPanda]
