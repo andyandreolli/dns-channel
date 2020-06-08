@@ -46,6 +46,9 @@ def read_dnsin(fdir):
     tmpln = tmpln[:-2]
     tmpln = tmpln + '}'
 
+    # one final trick: replace key "ni" with "re" for better clarity
+    tmpln = tmpln.replace('"ni"', '"re"')
+
     return eval(tmpln)
 
 
