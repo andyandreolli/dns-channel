@@ -42,6 +42,10 @@ def read_dnsin(fdir):
     tmpln = tmpln.replace(',', ',"') # open brackets after comma
     tmpln = tmpln.replace(':', '":') # close brackets before colon
 
+    # now remove last two characters (which will be ,") and close brackets
+    tmpln = tmpln[:-2]
+    tmpln = tmpln + '}'
+
     return eval(tmpln)
 
 
