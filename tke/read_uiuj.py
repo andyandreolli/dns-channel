@@ -48,7 +48,7 @@ def read(fdir, **kwargs):
         # read Runtimedata
 
         runtimePanda = pd.read_csv(fdir + 'Runtimedata', header=None, delim_whitespace=True)
-        rows, cols = runtimePanda.shape
+        _, cols = runtimePanda.shape
 
         if cols == 11: # column names are assigned depending on which program generated Runtimedata
             runtimePanda.columns = ['t', 'Uy_bottom', 'Uy_top', 'Wy_bottom', 'Wy_top', 'Ub', 'Px', 'Ut', 'Pt', 'CFL', 'dt']
@@ -60,6 +60,49 @@ def read(fdir, **kwargs):
 
 
     return runtimePanda, mePanda, uvPanda, uuPanda, vvPanda, wwPanda, kkPanda, mkPanda
+
+
+
+def read_integrals(fdir, **kwargs):
+
+    # runtimePanda, mePanda, uvPanda, uuPanda, vvPanda, wwPanda, kkPanda, mkPanda = read(fdir, invert_sss=False, variant=None, head_len=1)
+    # Reads Runtimedata and output of uiuj; returns a tuple of Pandas dataframes
+
+    # INPUT DESCRIPTION
+    # fidr: string - directory where output of uiuj and Runtimedata is contained
+    variant = kwargs.get('variant', None)   # variant of uiuj used for postprocessing
+    head_len = kwargs.get('head_len', 1) # length of header (notice that the column names should be OUTSIDE OF HEADER!)
+
+    # filenames
+    filenames = ['uv', 'uu', 'vv', 'ww', 'tke', 'mke']
+    filenames = [filenames[ii] + 'integrals' for ii in range(len(filenames))]
+    for ii in range(len(filenames)):
+        if not variant == None:
+            filenames[ii] += '_' + variant 
+        filenames[ii] += '.dat' 
+
+    # read Reynolds stress tensor components from uiuj
+    uvPanda = pd.read_csv(fdir + filenames[1], header = head_len, delim_whitespace=True) # reynolds stresses
+    uuPanda = pd.read_csv(fdir + filenames[2], header = head_len, delim_whitespace=True) # kinetic energy: uu
+    vvPanda = pd.read_csv(fdir + filenames[3], header = head_len, delim_whitespace=True) # kinetic energy: vv
+    wwPanda = pd.read_csv(fdir + filenames[4], header = head_len, delim_whitespace=True) # kinetic energy: ww
+    kkPanda = pd.read_csv(fdir + filenames[5], header = head_len, delim_whitespace=True) # turbulent kinetic energy 
+
+    # read mke
+    if variant=='large' or variant =='small':
+        mkPanda = None
+    else:
+        mkPanda = pd.read_csv(fdir + filenames[6], header = head_len, delim_whitespace=True) # mean kinetic energy
+
+    # create list of panda dataframes and initialise dictionaries
+    pandalist = [uvPanda, uuPanda, vvPanda, wwPanda, kkPanda, mkPanda]
+    uv = {}; uu = {}; vv = {}; ww = {}; kk = []; mk = {}
+    dictlist = [uv, uu, vv, ww, kk, mk]
+    for pnd,dct in zip(pandalist,dictlist):
+        for term in pnd:
+            dct.update({term:pnd[term]})
+
+    return uv, uu, vv, ww, kk, mk
 
 
 
