@@ -1,4 +1,4 @@
-import read_uiuj as uiuj
+import dns_channel.tke.read_uiuj as uiuj
 import numpy as np
 from scipy import integrate
 from math import sqrt

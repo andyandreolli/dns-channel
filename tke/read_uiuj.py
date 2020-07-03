@@ -1,55 +1,5 @@
 import pandas as pd
-
-
-
-def read_dnsin(fdir):
-
-    with open(fdir + 'dns.in') as dnsin:
-        temp = dnsin.readlines()
-
-    tmpln = ''
-
-    spltmark = '\n'
-
-    for line in temp:
-        if 'restart_file' in line or 'time_from_restart' in line:
-            continue
-        line = line.replace('\t',' ')
-        foundequal = False
-        foundvalue = False
-        for char in line:
-            tmpln += char
-            if not foundequal:
-                if char == '=':
-                    foundequal = True
-            elif not foundvalue:
-                if not char == ' ':
-                    foundvalue = True
-            else:
-                if char == ' ':
-                    tmpln += spltmark
-                    foundequal = False
-                    foundvalue = False
-    tmpln = tmpln.replace(' ', '') # remove white spaces
-    tmpln = tmpln.replace('\n\n','\n') # remove multiple endlines
-
-    # now tmpln is a single string with endlines, where each line reads "something=somevalue" without spaces
-    # it's going to be turned into a dictionary
-
-    tmpln = tmpln.replace('=',':') # replace equals with :
-    tmpln = tmpln.replace('\n',',') # replace endlines with commas
-    tmpln = '{"' + tmpln # open square brackets and brackets
-    tmpln = tmpln.replace(',', ',"') # open brackets after comma
-    tmpln = tmpln.replace(':', '":') # close brackets before colon
-
-    # now remove last two characters (which will be ,") and close brackets
-    tmpln = tmpln[:-2]
-    tmpln = tmpln + '}'
-
-    # one final trick: replace key "ni" with "re" for better clarity
-    tmpln = tmpln.replace('"ni"', '"re"')
-
-    return eval(tmpln)
+from dns_channel.dnsdata import read_dnsin
 
 
 
