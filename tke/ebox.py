@@ -55,10 +55,6 @@ def tennis(fdir, t_cnvrg, problem):
 
     # calculate power input and upi
     powt = tau_w * uk # <--------------------
-    #if problem == 'cou':
-    #    powt = (mkint['vdiff']/2)
-    #elif problem == 'poi':
-    #    powt = (mkint['pump']/2)
     upi = powt**(1/3) # <--------------------
 
 
@@ -113,3 +109,51 @@ def tennis(fdir, t_cnvrg, problem):
 
 
     return phil, pl_s, pl_l, pd_s, pd_l, t_cross, eps_s, eps_l, phid
+
+
+
+def properties(fdir, t_cnvrg, problem):
+
+    uvint,       uuint,       vvint,       wwint,       kkint,       mkint = uiuj.read_integrals(fdir)
+    uvint_large, uuint_large, vvint_large, wwint_large, kkint_large, _     = uiuj.read_integrals(fdir,variant='large')
+    uvint_small, uuint_small, vvint_small, wwint_small, kkint_small, _     = uiuj.read_integrals(fdir,variant='small')
+    runtime, me, uv,  uu,  vv,  ww,  kk,  mk = uiuj.read(fdir, variant=None)
+
+    _,       _,  uvS, uuS, vvS, wwS, kkS, _  = uiuj.read(fdir, variant='small')
+    _,       _,  uvL, uuL, vvL, wwL, kkL, _  = uiuj.read(fdir, variant='large')
+
+    dns_in = uiuj.read_dnsin('.//')
+
+    # get accurate value for tauwall from runtimedata
+    temp_tw_arr = (abs(runtime['Uy_bottom']) + abs(runtime['Uy_top']))/2
+    temp_series = runtime['t']
+    idx = temp_series[temp_series >= t_cnvrg].index[0]
+    temp_tw_arr = temp_tw_arr.loc[idx:]
+    tau_w = temp_tw_arr.mean() / dns_in['re'] # <--------------------
+
+
+    # get ubulk from runtimedata or uw from BC
+    if problem == 'cou':
+        uk = abs(me['U'].iat[0]) # <--------------------
+    elif problem == 'poi':
+        temp_ub_arr = runtime['Ub']/2 # Ub provided by runtimedata is actually flow rate; hence divide by two
+        temp_ub_arr = temp_ub_arr.loc[idx:]
+        uk = temp_ub_arr.mean() # <--------------------
+
+
+    # calculate power input and upi
+    powt = tau_w * uk # <--------------------
+    upi = powt**(1/3) # <--------------------
+
+    # calculate alpha and beta
+    uvpow = uv['var'].values/(upi**2)
+    beta = integrate.simps(np.square(uvpow), uv['y'].values)/2
+    if problem == 'cou':
+        alpha = integrate.simps(-uvpow, uv['y'].values)/2
+        rephi = dns_in['re']*upi*(alpha**2)
+    elif problem == 'poi':
+        integrand = np.multiply(-uvpow, (1-uv['y'].values))
+        alpha = integrate.simps(integrand, uv['y'].values)/2
+        rephi = 3*dns_in['re']*upi*(alpha**2)
+
+    return rephi, alpha, beta

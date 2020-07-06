@@ -122,3 +122,33 @@ def readLM(fabel):
     kkPanda = pd.read_csv(fdir + 'k.dat', header = 72, delim_whitespace=True, engine='python') # kinetic energy
 
     return mePanda, flPanda, uvPanda, uuPanda, vvPanda, wwPanda, kkPanda
+
+
+
+def get_nfield(fdir):
+
+    with open(fdir + 'uu.dat') as infile:
+        fline = infile.readline()
+
+    tmp = ''
+
+    for char in fline:
+        if char.isdigit():
+            tmp = tmp + char
+        else:
+            tmp = tmp + ' '
+
+    tmp = tmp.split()
+
+    return int(tmp[-1])
+
+
+
+def get_z_threshold(fdir):
+
+    dct = locals()
+
+    with open(fdir + 'largesmall_settings.in', 'r') as infile:
+        exec(infile.readline(), globals(), dct)
+
+    return dct['z_threshold']
