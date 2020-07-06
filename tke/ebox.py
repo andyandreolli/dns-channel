@@ -7,8 +7,6 @@ from math import sqrt
 
 def tennis(fdir, t_cnvrg, problem):
 
-    # TODO: not tested for Poiseuille!
-
     # Calculates ebox terms with both extended Reynolds decomposition of mean field and large/small decomposition of fluctuation field.
     # Syntax:
     # phil, pl_s, pl_l, pd_s, pd_l, t_cross, eps_s, eps_l, phid = tennis(fdir, t_cnvrg, problem)
