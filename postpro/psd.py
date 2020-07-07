@@ -12,14 +12,16 @@
 
 # Inputs
 pl = 'uv'
-py = 15;
+py = 15
 premultiply = True
 y_normalize = True
 scale = 'log'
 antisymm = True
 U=15.8956
+
 # ----------------
-from   dnsdata import *
+from dns_utilities import *
+import numpy as np
 # ----------------
 
 izd = lambda i: i+nz

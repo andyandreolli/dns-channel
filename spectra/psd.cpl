@@ -15,10 +15,13 @@ USE ../dnsdirect
 USE ../tke/convenience.cpl
 
 ! Parameters
-INTEGER nfmin=1,nfmax=31, nftot
-STRING path="./postpro-fld/"
-!------------
-nftot=nfmax-nfmin+1
+! -----------------------------
+INTEGER nfmin,nfmax,dn
+nfmin=atoi(COMMANDLINE(4))
+nfmax=atoi(COMMANDLINE(5))
+dn=atoi(COMMANDLINE(6))
+!------------------------------
+nftot=[(nfmax-nfmin) DIV dn]+1
 
 ! Definitions
 MEANTERMS = STRUCTURE(REAL U,W)
@@ -33,7 +36,7 @@ POINTER TO STORED STRUCTURE[
 
 ! Compute the average field
 LOOP FOR n=nfmin TO nfmax
-  STRING field_name = WRITE(path'Field'n'.fld')
+  STRING field_name = WRITE('Field'n'.fld')
   IF NOT first THEN READ FROM prev
   diskfield=OPEN(field_name)
   WITH diskfield,meandata(*):
@@ -47,7 +50,7 @@ DO WITH meandata(iy): U=U/nftot; W=W/nftot; FOR ALL iy
 ! Main loop on files
 LOOP files FOR n=nfmin TO nfmax
     ! Read field
-    STRING field_name = WRITE(path'Field'n'.fld')
+    STRING field_name = WRITE('Field'n'.fld')
     read_field_parallel(field_name)
     WITH V(0,0,*),meandata(*): u=~-U; w=~-W
     ! Compute PSD and CSD
