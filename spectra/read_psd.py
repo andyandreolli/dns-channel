@@ -6,7 +6,9 @@ import progressbar
 
 
 
-def read_psd(fdir):
+def read_psd(fdir, **kwargs):
+
+    y_symm = kwargs.get('y_symm', True)
     
     fname = fdir + 'psd.bin' # generate file name
 
@@ -24,9 +26,15 @@ def read_psd(fdir):
     with progressbar.ProgressBar(max_value=6*(mesh.nx+1)*(mesh.nz+1)*(mesh.ny+1)) as bar:
         for ii, (iz, ic, ix, iy) in enumerate(itertools.product(range(mesh.nz+1), range(6), range(mesh.nx+1), range(mesh.ny+1))):
             izb = -1-iz
-            all_spectra[ic, ix, iz, iy] = diskacc[iy, ix, iz, ic] + diskacc[iy, ix, izb, ic]
+            izm = mesh.nz + izb
+            all_spectra[ic, ix, izm, iy] = diskacc[iy, ix, iz, ic] + diskacc[iy, ix, izb, ic]
             if izb+iz+1 == 0:
                 all_spectra[ic, ix, iz, iy] = all_spectra[ic, ix, iz, iy]/2
             bar.update(ii)
+
+    # average on y (if requested)
+    if y_symm:
+        all_spectra += all_spectra[:,:,:,::-1]
+        all_spectra /= 2
 
     return all_spectra, mesh.kx, mesh.kz, mesh.y[1:-1]
