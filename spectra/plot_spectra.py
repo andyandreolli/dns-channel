@@ -65,8 +65,6 @@ def plot_premultiplied(all_spectra, components, desired_ys, y, kx, kz, **kwargs)
                 pos.set_edgecolor('face')
                 ax.set_xlabel(r'$k_x$')
                 ax.set_ylabel(r'$k_z$')
-            ax.set_xlim([kx[1], kx[-1]])
-            ax.set_ylim([kz[1], kz[-1]])
             fig.colorbar(pos)
             cmp = gcmp(component)
             ax.set_title(plot_title + r'$k_xk_z \langle \hat{'+cmp+'}^\dagger \hat{'+cmp+'} \\rangle$, ' + 'y = {}'.format(round(y[y_idx], 3)))
@@ -84,8 +82,6 @@ def plot(all_spectra, components, desired_ys, y, kx, kz, **kwargs):
     vmax = kwargs.get('vmax', None)
     plot_title = kwargs.get('title', '')
     save_fig = kwargs.get('save_fig', '')
-    limx = kwargs.get('limx', None)
-    limy = kwargs.get('limy', None)
     if not save_fig == '':
         save_format = save_fig
         save_fig = True
@@ -126,8 +122,6 @@ def plot(all_spectra, components, desired_ys, y, kx, kz, **kwargs):
             fig.colorbar(pos)
             cmp = gcmp(component)
             ax.set_title(plot_title + r'$ \tilde{'+cmp+'}^\dagger \\tilde{'+cmp+'}$, ' + 'y = {}'.format(round(y[y_idx], 3)))
-            ax.set_xlim(limx)
-            ax.set_ylim(limy)
             if save_fig:
                 figname = 'Figs/' + plot_title[:-2].lower() + '_' + component + '_y' + str(round(y[y_idx], 3)).replace('.','') + '.' + save_format
                 savefig(figname, format=save_format)
