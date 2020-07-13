@@ -136,6 +136,7 @@ def plot_cumulative_zy(all_spectra, components, y, kz, **kwargs):
     with_wavelengths = kwargs.get('with_wavelengths', False)
     plot_title = kwargs.get('title', '')
     save_fig = kwargs.get('save_fig', '')
+    y_symm = kwargs.get('y_symm', True)
     if not save_fig == '':
         save_format = save_fig
         save_fig = True
@@ -182,6 +183,8 @@ def plot_cumulative_zy(all_spectra, components, y, kz, **kwargs):
         fig.colorbar(pos)
         cmp = gcmp(component)
         ax.set_title(plot_title + r'$k_z\sum\,_{k_x} \langle \hat{'+cmp+'}^\dagger\hat{'+cmp+'} \\rangle(k_x, k_z, y)$')
+        if y_symm:
+            ax.set_ylim([0,1])
         if save_fig:
             figname = 'Figs/' + plot_title[:-2].lower() + '_cumulative_' + component + '.' + save_format
             savefig(figname, format=save_format)
@@ -196,6 +199,7 @@ def plot_cumulative_xy(all_spectra, components, y, kx, **kwargs):
     with_wavelengths = kwargs.get('with_wavelengths', False)
     plot_title = kwargs.get('title', '')
     save_fig = kwargs.get('save_fig', '')
+    y_symm = kwargs.get('y_symm', True)
     if not save_fig == '':
         save_format = save_fig
         save_fig = True
@@ -242,6 +246,8 @@ def plot_cumulative_xy(all_spectra, components, y, kx, **kwargs):
         fig.colorbar(pos)
         cmp = gcmp(component)
         ax.set_title(plot_title + r'$k_z\sum\,_{k_x} \langle \hat{'+cmp+'}^\dagger\hat{'+cmp+'} \\rangle(k_x, k_z, y)$')
+        if y_symm:
+            ax.set_ylim([0,1])
         if save_fig:
             figname = 'Figs/' + plot_title[:-2].lower() + '_cumulative_' + component + '.' + save_format
             savefig(figname, format=save_format)
