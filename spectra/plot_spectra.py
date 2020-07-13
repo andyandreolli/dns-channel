@@ -303,4 +303,5 @@ def get_plottable(k):
     plotk = np.zeros(len(k)+1)
     plotk[:-1] = k
     plotk[-1] = k[-1] + dk
+    plotk -= dk/2
     return plotk
