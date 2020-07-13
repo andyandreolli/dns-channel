@@ -10,7 +10,6 @@ from matplotlib.colors import LogNorm
 def plot_premultiplied(all_spectra, components, desired_ys, y, kx, kz, **kwargs):
 
     # unpack input
-    with_wavelengths = kwargs.get('with_wavelengths', False)
     plot_title = kwargs.get('title', '')
     save_fig = kwargs.get('save_fig', '')
     if not save_fig == '':
@@ -51,23 +50,21 @@ def plot_premultiplied(all_spectra, components, desired_ys, y, kx, kz, **kwargs)
             y_idx = (np.abs(y - desired_y)).argmin()
 
             # actually print
-            fig, ax = subplots(figsize=(4.7,4))
+            fig, (ax,cb_ax) = subplots(ncols=2,figsize=(10,7),gridspec_kw={"width_ratios":[1, 0.05]})
             ax.set_xscale("log")
             ax.set_yscale("log")
             # when plotting, 0 modes are excluded
-            if with_wavelengths:
-                pos = ax.pcolormesh(2*np.pi/kxplt[1:],2*np.pi/kzplt[1:],premultiplied[y_idx, 1:,1:], linewidth=0, rasterized=True)
-                pos.set_edgecolor('face')
-                ax.set_xlabel(r'$\lambda_x$')
-                ax.set_ylabel(r'$\lambda_z$')
-            else:
-                pos = ax.pcolormesh(kxplt[1:], kzplt[1:], premultiplied[y_idx, 1:, 1:], linewidth=0, rasterized=True)
-                pos.set_edgecolor('face')
-                ax.set_xlabel(r'$k_x$')
-                ax.set_ylabel(r'$k_z$')
-            fig.colorbar(pos)
+            pos = ax.pcolormesh(kxplt[1:], kzplt[1:], premultiplied[y_idx, 1:, 1:], linewidth=0, rasterized=True)
+            pos.set_edgecolor('face')
+            ax.set_xlabel(r'$k_x$')
+            ax.set_ylabel(r'$k_z$')
+            secaxx = ax.secondary_xaxis('top', functions=(get_wavelength_fwr,get_wavelength_inv))
+            secaxx.set_xlabel(r'$\lambda_x$')
+            secaxy = ax.secondary_yaxis('right', functions=(get_wavelength_fwr,get_wavelength_inv))
+            secaxy.set_ylabel(r'$\lambda_z$')
+            fig.colorbar(pos, cax=cb_ax)
             cmp = gcmp(component)
-            ax.set_title(plot_title + r'$k_xk_z \langle \hat{'+cmp+'}^\dagger \hat{'+cmp+'} \\rangle$, ' + 'y = {}'.format(round(y[y_idx], 3)))
+            ax.set_title(plot_title + r'$k_xk_z \langle \hat{'+cmp[0]+r'}^\dagger \hat{'+cmp[1]+r'} \rangle$, ' + 'y = {}'.format(round(y[y_idx], 3)))
             if save_fig:
                 figname = 'Figs/' + plot_title[:-2].lower() + '_' + 'premultiplied' + '_' + component + '_y' + str(round(y[y_idx], 3)).replace('.','') + '.' + save_format
                 savefig(figname, format=save_format)
@@ -114,14 +111,18 @@ def plot(all_spectra, components, desired_ys, y, kx, kz, **kwargs):
             y_idx = (np.abs(y - desired_y)).argmin()
 
             # actually print
-            fig, ax = subplots(figsize=(4.7,4))
-            ax.set_xlabel(r'$k_x$') 
+            fig, (ax,cb_ax) = subplots(ncols=2,figsize=(10,7),gridspec_kw={"width_ratios":[1, 0.05]})
+            ax.set_xlabel(r'$k_x$')
             ax.set_ylabel(r'$k_z$')
             pos = ax.pcolormesh(kxplt,kzplt,spectrum[y_idx,:,:], vmin=vmin, vmax=vmax, linewidth=0, rasterized=True)
             pos.set_edgecolor('face')
-            fig.colorbar(pos)
+            secaxx = ax.secondary_xaxis('top', functions=(get_wavelength_fwr,get_wavelength_inv))
+            secaxx.set_xlabel(r'$\lambda_x$')
+            secaxy = ax.secondary_yaxis('right', functions=(get_wavelength_fwr,get_wavelength_inv))
+            secaxy.set_ylabel(r'$\lambda_z$')
+            fig.colorbar(pos,cax=cb_ax)
             cmp = gcmp(component)
-            ax.set_title(plot_title + r'$ \tilde{'+cmp+'}^\dagger \\tilde{'+cmp+'}$, ' + 'y = {}'.format(round(y[y_idx], 3)))
+            ax.set_title(plot_title + r'$ \tilde{'+cmp[0]+r'}^\dagger \tilde{'+cmp[1]+'}$, ' + 'y = {}'.format(round(y[y_idx], 3)))
             if save_fig:
                 figname = 'Figs/' + plot_title[:-2].lower() + '_' + component + '_y' + str(round(y[y_idx], 3)).replace('.','') + '.' + save_format
                 savefig(figname, format=save_format)
@@ -133,7 +134,6 @@ def plot(all_spectra, components, desired_ys, y, kx, kz, **kwargs):
 def plot_cumulative_zy(all_spectra, components, y, kz, **kwargs):
 
     # unpack input
-    with_wavelengths = kwargs.get('with_wavelengths', False)
     plot_title = kwargs.get('title', '')
     save_fig = kwargs.get('save_fig', '')
     y_symm = kwargs.get('y_symm', True)
@@ -167,22 +167,18 @@ def plot_cumulative_zy(all_spectra, components, y, kz, **kwargs):
         premultiplied = spectrum * abs(kz)
 
         # actually print
-        fig, ax = subplots(figsize=(4.7,4))
+        fig, (ax,cb_ax) = subplots(ncols=2,figsize=(10,7),gridspec_kw={"width_ratios":[1, 0.05]})
         ax.set_xscale("log") # logarithmic scale only for lambda z
         # when plotting, 0 modes are excluded
-        if with_wavelengths:
-            pos = ax.pcolormesh(2*np.pi/kzplt[1:], y, premultiplied[:,1:], linewidth=0, rasterized=True)
-            pos.set_edgecolor('face')
-            ax.set_xlabel(r'$\lambda_z$') 
-            ax.set_ylabel(r'$y$')
-        else:
-            pos = ax.pcolormesh(kzplt[1:], y, premultiplied[:,1:], linewidth=0, rasterized=True)
-            pos.set_edgecolor('face')
-            ax.set_xlabel(r'$k_z$') 
-            ax.set_ylabel(r'$y$')
-        fig.colorbar(pos)
+        pos = ax.pcolormesh(kzplt[1:], y, premultiplied[:,1:], linewidth=0, rasterized=True)
+        pos.set_edgecolor('face')
+        ax.set_xlabel(r'$k_z$') 
+        ax.set_ylabel(r'$y$')
+        secaxx = ax.secondary_xaxis('top', functions=(get_wavelength_fwr,get_wavelength_inv))
+        secaxx.set_xlabel(r'$\lambda_x$')
+        fig.colorbar(pos, cax=cb_ax)
         cmp = gcmp(component)
-        ax.set_title(plot_title + r'$k_z\sum\,_{k_x} \langle \hat{'+cmp+'}^\dagger\hat{'+cmp+'} \\rangle(k_x, k_z, y)$')
+        ax.set_title(plot_title + r'$k_z\sum\,_{k_x} \langle \hat{'+cmp[0]+r'}^\dagger\hat{'+cmp[1]+r'} \rangle(k_x, k_z, y)$')
         if y_symm:
             ax.set_ylim([0,1])
         if save_fig:
@@ -196,7 +192,6 @@ def plot_cumulative_zy(all_spectra, components, y, kz, **kwargs):
 def plot_cumulative_xy(all_spectra, components, y, kx, **kwargs):
 
     # unpack input
-    with_wavelengths = kwargs.get('with_wavelengths', False)
     plot_title = kwargs.get('title', '')
     save_fig = kwargs.get('save_fig', '')
     y_symm = kwargs.get('y_symm', True)
@@ -230,22 +225,18 @@ def plot_cumulative_xy(all_spectra, components, y, kx, **kwargs):
         premultiplied = spectrum * abs(kx)
 
         # actually print
-        fig, ax = subplots(figsize=(4.7,4))
+        fig, (ax,cb_ax) = subplots(ncols=2,figsize=(10,7),gridspec_kw={"width_ratios":[1, 0.05]})
         ax.set_xscale("log") # logarithmic scale only for lambda z
         # when plotting, 0 modes are excluded
-        if with_wavelengths:
-            pos = ax.pcolormesh(2*np.pi/kxplt[1:], y, premultiplied[:,1:], linewidth=0, rasterized=True)
-            pos.set_edgecolor('face')
-            ax.set_xlabel(r'$\lambda_z$') 
-            ax.set_ylabel(r'$y$')
-        else:
-            pos = ax.pcolormesh(kxplt[1:], y, premultiplied[:,1:], linewidth=0, rasterized=True)
-            pos.set_edgecolor('face')
-            ax.set_xlabel(r'$k_z$') 
-            ax.set_ylabel(r'$y$')
-        fig.colorbar(pos)
+        pos = ax.pcolormesh(kxplt[1:], y, premultiplied[:,1:], linewidth=0, rasterized=True)
+        pos.set_edgecolor('face')
+        ax.set_xlabel(r'$k_z$') 
+        ax.set_ylabel(r'$y$')
+        secaxx = ax.secondary_xaxis('top', functions=(get_wavelength_fwr,get_wavelength_inv))
+        secaxx.set_xlabel(r'$\lambda_x$')
+        fig.colorbar(pos,cax=cb_ax)
         cmp = gcmp(component)
-        ax.set_title(plot_title + r'$k_z\sum\,_{k_x} \langle \hat{'+cmp+'}^\dagger\hat{'+cmp+'} \\rangle(k_x, k_z, y)$')
+        ax.set_title(plot_title + r'$k_z\sum\,_{k_x} \langle \hat{'+cmp[0]+r'}^\dagger\hat{'+cmp[1]+r'} \rangle(k_x, k_z, y)$')
         if y_symm:
             ax.set_ylim([0,1])
         if save_fig:
@@ -305,3 +296,12 @@ def get_plottable(k):
     plotk[-1] = k[-1] + dk
     plotk -= dk/2
     return plotk
+
+
+
+
+def get_wavelength_fwr(x):
+    return 2*np.pi/x
+
+def get_wavelength_inv(x):
+    return 2*np.pi/x

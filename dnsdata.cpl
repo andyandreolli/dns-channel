@@ -33,6 +33,13 @@ BOOLEAN time_from_restart
 STRING restart_file
 
 
+FILE FUNCTION OPENA(STRING filename)
+  C SECTION
+    RESULT_ = fopen(filename_,"a");
+  END C SECTION
+END OPENA
+
+
 SUBROUTINE read_initial_data
  FILE in_data=OPEN("dns.in")
  READ BY NAME FROM in_data ny,nx,nz,alfa0,beta0,ymin,ymax,a,ni,pr,gr; ni=1/ni; pr=1/pr;
@@ -234,7 +241,7 @@ POINTER TO STORED STRUCTURE(
 #endif
 
 INTEGER cont=0,outcont=1000
-FILE time_file; IF has_terminal THEN time_file=CREATE("Runtimedata")
+FILE time_file; IF has_terminal THEN time_file=OPENA("Runtimedata")
 #ifdef scalar
  FILE scalar_file; IF has_terminal THEN scalar_file=CREATE("Scalardata")
 #endif
