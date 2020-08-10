@@ -26,10 +26,6 @@ def plot_premultiplied(all_spectra, components, desired_ys, y, kx, kz, **kwargs)
     if not (hasattr(desired_ys, '__iter__') or hasattr(desired_ys, '__getitem__')):
         desired_ys = [desired_ys]
 
-    # get plottable (complying with pcolormesh) kx and kz
-    kxplt = get_plottable(kx)
-    kzplt = get_plottable(kz)
-
     for component in components:
         
         # convert component to index
@@ -54,7 +50,7 @@ def plot_premultiplied(all_spectra, components, desired_ys, y, kx, kz, **kwargs)
             ax.set_xscale("log")
             ax.set_yscale("log")
             # when plotting, 0 modes are excluded
-            pos = ax.pcolormesh(kxplt[1:], kzplt[1:], premultiplied[y_idx, 1:, 1:], linewidth=0, rasterized=True)
+            pos = ax.pcolormesh(kx[1:], kz[1:], premultiplied[y_idx, 1:, 1:], linewidth=0, rasterized=True,shading='gouraud',cmap='hot_r')
             pos.set_edgecolor('face')
             ax.set_xlabel(r'$k_x$')
             ax.set_ylabel(r'$k_z$')
@@ -94,10 +90,6 @@ def plot(all_spectra, components, desired_ys, y, kx, kz, **kwargs):
     if not (hasattr(desired_ys, '__iter__') or hasattr(desired_ys, '__getitem__')):
         desired_ys = [desired_ys]
 
-    # get plottable (complying with pcolormesh) kx and kz
-    kxplt = get_plottable(kx)
-    kzplt = get_plottable(kz)
-
     for component in components:
         
         # convert component to index
@@ -114,7 +106,7 @@ def plot(all_spectra, components, desired_ys, y, kx, kz, **kwargs):
             fig, (ax,cb_ax) = subplots(ncols=2,figsize=(10,7),gridspec_kw={"width_ratios":[1, 0.05]})
             ax.set_xlabel(r'$k_x$')
             ax.set_ylabel(r'$k_z$')
-            pos = ax.pcolormesh(kxplt,kzplt,spectrum[y_idx,:,:], vmin=vmin, vmax=vmax, linewidth=0, rasterized=True)
+            pos = ax.pcolormesh(kx,kz,spectrum[y_idx,:,:], vmin=vmin, vmax=vmax, linewidth=0, rasterized=True,shading='gouraud',cmap='hot_r')
             pos.set_edgecolor('face')
             secaxx = ax.secondary_xaxis('top', functions=(get_wavelength_fwr,get_wavelength_inv))
             secaxx.set_xlabel(r'$\lambda_x$')
@@ -149,9 +141,6 @@ def plot_cumulative_zy(all_spectra, components, y, kz, **kwargs):
     if not (hasattr(components, '__iter__') or hasattr(components, '__getitem__')):
         components = [components]
 
-    # get plottable (complying with pcolormesh) kz
-    kzplt = get_plottable(kz)
-
     for component in components:
         
         # convert component to index
@@ -170,12 +159,12 @@ def plot_cumulative_zy(all_spectra, components, y, kz, **kwargs):
         fig, (ax,cb_ax) = subplots(ncols=2,figsize=(10,7),gridspec_kw={"width_ratios":[1, 0.05]})
         ax.set_xscale("log") # logarithmic scale only for lambda z
         # when plotting, 0 modes are excluded
-        pos = ax.pcolormesh(kzplt[1:], y, premultiplied[:,1:], linewidth=0, rasterized=True)
+        pos = ax.pcolormesh(kz[1:], y, premultiplied[:,1:], linewidth=0, rasterized=True,shading='gouraud',cmap='hot_r')
         pos.set_edgecolor('face')
         ax.set_xlabel(r'$k_z$') 
         ax.set_ylabel(r'$y$')
         secaxx = ax.secondary_xaxis('top', functions=(get_wavelength_fwr,get_wavelength_inv))
-        secaxx.set_xlabel(r'$\lambda_x$')
+        secaxx.set_xlabel(r'$\lambda_z$')
         fig.colorbar(pos, cax=cb_ax)
         cmp = gcmp(component)
         ax.set_title(plot_title + r'$k_z\sum\,_{k_x} \langle \hat{'+cmp[0]+r'}^\dagger\hat{'+cmp[1]+r'} \rangle(k_x, k_z, y)$')
@@ -207,9 +196,6 @@ def plot_cumulative_xy(all_spectra, components, y, kx, **kwargs):
     if not (hasattr(components, '__iter__') or hasattr(components, '__getitem__')):
         components = [components]
 
-    # get plottable (complying with pcolormesh) kx
-    kxplt = get_plottable(kx)
-
     for component in components:
         
         # convert component to index
@@ -228,7 +214,7 @@ def plot_cumulative_xy(all_spectra, components, y, kx, **kwargs):
         fig, (ax,cb_ax) = subplots(ncols=2,figsize=(10,7),gridspec_kw={"width_ratios":[1, 0.05]})
         ax.set_xscale("log") # logarithmic scale only for lambda z
         # when plotting, 0 modes are excluded
-        pos = ax.pcolormesh(kxplt[1:], y, premultiplied[:,1:], linewidth=0, rasterized=True)
+        pos = ax.pcolormesh(kx[1:], y, premultiplied[:,1:], linewidth=0, rasterized=True,shading='gouraud',cmap='hot_r')
         pos.set_edgecolor('face')
         ax.set_xlabel(r'$k_z$') 
         ax.set_ylabel(r'$y$')
@@ -284,19 +270,6 @@ def get_comp_idx(component):
     elif not component == 'x' or component == 'uu' or component == 'u':
         print('Error: invalid component. Please pass either "x", "y", "z" as the second argument.')
     return idx
-
-
-
-
-
-def get_plottable(k):
-    dk = k[1] - k[0]
-    plotk = np.zeros(len(k)+1)
-    plotk[:-1] = k
-    plotk[-1] = k[-1] + dk
-    plotk -= dk/2
-    return plotk
-
 
 
 
