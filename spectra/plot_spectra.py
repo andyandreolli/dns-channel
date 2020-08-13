@@ -2,7 +2,7 @@ import numpy as np
 import h5py
 from matplotlib.pyplot import subplots, imshow, colorbar, savefig
 from matplotlib.colors import LogNorm
-
+import sys
 
 
 
@@ -108,10 +108,6 @@ def plot(all_spectra, components, desired_ys, y, kx, kz, **kwargs):
             ax.set_ylabel(r'$k_z$')
             pos = ax.pcolormesh(kx,kz,spectrum[y_idx,:,:], vmin=vmin, vmax=vmax, linewidth=0, rasterized=True,shading='gouraud',cmap='hot_r')
             pos.set_edgecolor('face')
-            secaxx = ax.secondary_xaxis('top', functions=(get_wavelength_fwr,get_wavelength_inv))
-            secaxx.set_xlabel(r'$\lambda_x$')
-            secaxy = ax.secondary_yaxis('right', functions=(get_wavelength_fwr,get_wavelength_inv))
-            secaxy.set_ylabel(r'$\lambda_z$')
             fig.colorbar(pos,cax=cb_ax)
             cmp = gcmp(component)
             ax.set_title(plot_title + r'$ \tilde{'+cmp[0]+r'}^\dagger \tilde{'+cmp[1]+'}$, ' + 'y = {}'.format(round(y[y_idx], 3)))
@@ -216,13 +212,13 @@ def plot_cumulative_xy(all_spectra, components, y, kx, **kwargs):
         # when plotting, 0 modes are excluded
         pos = ax.pcolormesh(kx[1:], y, premultiplied[:,1:], linewidth=0, rasterized=True,shading='gouraud',cmap='hot_r')
         pos.set_edgecolor('face')
-        ax.set_xlabel(r'$k_z$') 
+        ax.set_xlabel(r'$k_x$')
         ax.set_ylabel(r'$y$')
         secaxx = ax.secondary_xaxis('top', functions=(get_wavelength_fwr,get_wavelength_inv))
         secaxx.set_xlabel(r'$\lambda_x$')
         fig.colorbar(pos,cax=cb_ax)
         cmp = gcmp(component)
-        ax.set_title(plot_title + r'$k_z\sum\,_{k_x} \langle \hat{'+cmp[0]+r'}^\dagger\hat{'+cmp[1]+r'} \rangle(k_x, k_z, y)$')
+        ax.set_title(plot_title + r'$k_x\sum\,_{k_z} \langle \hat{'+cmp[0]+r'}^\dagger\hat{'+cmp[1]+r'} \rangle(k_x, k_z, y)$')
         if y_symm:
             ax.set_ylim([0,1])
         if save_fig:
@@ -274,7 +270,11 @@ def get_comp_idx(component):
 
 
 def get_wavelength_fwr(x):
-    return 2*np.pi/x
+    wvl = np.zeros_like(x)
+    x_is_zero = x==0
+    wvl[x_is_zero] = 1e+308
+    wvl[~x_is_zero] = 2*np.pi/x[~x_is_zero]
+    return wvl
 
 def get_wavelength_inv(x):
     return 2*np.pi/x
