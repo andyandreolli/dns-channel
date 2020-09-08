@@ -1,6 +1,7 @@
 import numpy as np
 import h5py
 from matplotlib.pyplot import subplots, imshow, colorbar, savefig
+import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 import sys
 from matplotlib import cm
@@ -47,6 +48,8 @@ inferno_wr = ListedColormap(newcolors)
 def plot_premultiplied(all_spectra, components, desired_ys, y, kx, kz, **kwargs):
 
     # unpack input
+    save_size = kwargs.get('save_size', (5,5))
+    w = save_size[0]; h = save_size[1]
     plot_title = kwargs.get('title', '')
     save_fig = kwargs.get('save_fig', '')
     if not save_fig == '':
@@ -99,7 +102,15 @@ def plot_premultiplied(all_spectra, components, desired_ys, y, kx, kz, **kwargs)
             cmp = gcmp(component)
             ax.set_title(plot_title + r'$k_xk_z \langle \hat{'+cmp[0]+r'}^\dagger \hat{'+cmp[1]+r'} \rangle$, ' + 'y = {}'.format(round(y[y_idx], 3)))
             if save_fig:
-                figname = 'Figs/' + plot_title[:-2].lower() + '_' + 'premultiplied' + '_' + component + '_y' + str(round(y[y_idx], 3)).replace('.','') + '.' + save_format
+                fig = plt.figure(frameon=False)
+                fig.set_size_inches(w,h)
+                ax = plt.Axes(fig, [0., 0., 1., 1.])
+                ax.set_axis_off()
+                fig.add_axes(ax)
+                ax.set_xscale("log")
+                ax.set_yscale("log")
+                ax.pcolormesh(kx[1:], kz[1:], premultiplied[y_idx, 1:, 1:], linewidth=0, rasterized=True,shading='gouraud',cmap=inferno_wr)
+                figname = plot_title[:-2].lower() + '_' + 'premultiplied' + '_' + component + '_y' + str(round(y[y_idx], 3)).replace('.','') + '.' + save_format
                 savefig(figname, format=save_format)
 
 
@@ -108,6 +119,8 @@ def plot_premultiplied(all_spectra, components, desired_ys, y, kx, kz, **kwargs)
 
 def plot(all_spectra, components, desired_ys, y, kx, kz, **kwargs):
 
+    save_size = kwargs.get('save_size', (5,5))
+    w = save_size[0]; h = save_size[1]
     vmin = kwargs.get('vmin', None)
     vmax = kwargs.get('vmax', None)
     plot_title = kwargs.get('title', '')
@@ -149,7 +162,13 @@ def plot(all_spectra, components, desired_ys, y, kx, kz, **kwargs):
             cmp = gcmp(component)
             ax.set_title(plot_title + r'$ \tilde{'+cmp[0]+r'}^\dagger \tilde{'+cmp[1]+'}$, ' + 'y = {}'.format(round(y[y_idx], 3)))
             if save_fig:
-                figname = 'Figs/' + plot_title[:-2].lower() + '_' + component + '_y' + str(round(y[y_idx], 3)).replace('.','') + '.' + save_format
+                fig = plt.figure(frameon=False)
+                fig.set_size_inches(w,h)
+                ax = plt.Axes(fig, [0., 0., 1., 1.])
+                ax.set_axis_off()
+                fig.add_axes(ax)
+                ax.pcolormesh(kx,kz,spectrum[y_idx,:,:], vmin=vmin, vmax=vmax, linewidth=0, rasterized=True,shading='gouraud',cmap=inferno_wr)
+                figname = plot_title[:-2].lower() + '_' + component + '_y' + str(round(y[y_idx], 3)).replace('.','') + '.' + save_format
                 savefig(figname, format=save_format)
 
 
@@ -159,6 +178,8 @@ def plot(all_spectra, components, desired_ys, y, kx, kz, **kwargs):
 def plot_cumulative_zy(all_spectra, components, y, kz, **kwargs):
 
     # unpack input
+    save_size = kwargs.get('save_size', (5,5))
+    w = save_size[0]; h = save_size[1]
     plot_title = kwargs.get('title', '')
     save_fig = kwargs.get('save_fig', '')
     y_symm = kwargs.get('y_symm', True)
@@ -168,8 +189,7 @@ def plot_cumulative_zy(all_spectra, components, y, kz, **kwargs):
     else:
         save_fig = False
         save_format = ''
-    if not plot_title == '':
-        plot_title = plot_title + ', '
+
 
     if not (hasattr(components, '__iter__') or hasattr(components, '__getitem__')):
         components = [components]
@@ -194,7 +214,7 @@ def plot_cumulative_zy(all_spectra, components, y, kz, **kwargs):
         # when plotting, 0 modes are excluded
         pos = ax.pcolormesh(kz[1:], y, premultiplied[:,1:], linewidth=0, rasterized=True,shading='gouraud',cmap=inferno_wr)
         pos.set_edgecolor('face')
-        ax.set_xlabel(r'$k_z$') 
+        ax.set_xlabel(r'$k_z$')
         ax.set_ylabel(r'$y$')
         secaxx = ax.secondary_xaxis('top', functions=(get_wavelength_fwr,get_wavelength_inv))
         secaxx.set_xlabel(r'$\lambda_z$')
@@ -204,8 +224,17 @@ def plot_cumulative_zy(all_spectra, components, y, kz, **kwargs):
         if y_symm:
             ax.set_ylim([0,1])
         if save_fig:
-            figname = 'Figs/' + plot_title[:-2].lower() + '_cumulative_' + component + '.' + save_format
-            savefig(figname, format=save_format)
+            fig = plt.figure(frameon=False)
+            fig.set_size_inches(w,h)
+            ax = plt.Axes(fig, [0., 0., 1., 1.])
+            ax.set_axis_off()
+            fig.add_axes(ax)
+            ax.set_xscale("log")
+            ax.pcolormesh(kz[1:], y, premultiplied[:,1:], linewidth=0, rasterized=True,shading='gouraud',cmap=inferno_wr)
+            if y_symm:
+                ax.set_ylim([0,1])
+            figname = plot_title[:-2].lower() + '_cumulative_' + component + '.' + save_format
+            savefig(figname, format=save_format, bbox_inches='tight', pad_inches=0)
 
 
 
@@ -214,6 +243,8 @@ def plot_cumulative_zy(all_spectra, components, y, kz, **kwargs):
 def plot_cumulative_xy(all_spectra, components, y, kx, **kwargs):
 
     # unpack input
+    save_size = kwargs.get('save_size', (5,5))
+    w = save_size[0]; h = save_size[1]
     plot_title = kwargs.get('title', '')
     save_fig = kwargs.get('save_fig', '')
     y_symm = kwargs.get('y_symm', True)
@@ -259,7 +290,16 @@ def plot_cumulative_xy(all_spectra, components, y, kx, **kwargs):
         if y_symm:
             ax.set_ylim([0,1])
         if save_fig:
-            figname = 'Figs/' + plot_title[:-2].lower() + '_cumulative_' + component + '.' + save_format
+            fig = plt.figure(frameon=False)
+            fig.set_size_inches(w,h)
+            ax = plt.Axes(fig, [0., 0., 1., 1.])
+            ax.set_axis_off()
+            fig.add_axes(ax)
+            ax.set_xscale("log")
+            ax.pcolormesh(kx[1:], y, premultiplied[:,1:], linewidth=0, rasterized=True,shading='gouraud',cmap=inferno_wr)
+            if y_symm:
+                ax.set_ylim([0,1])
+            figname = plot_title[:-2].lower() + '_cumulative_' + component + '.' + save_format
             savefig(figname, format=save_format)
 
 
