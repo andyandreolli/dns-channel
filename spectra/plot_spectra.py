@@ -3,6 +3,43 @@ import h5py
 from matplotlib.pyplot import subplots, imshow, colorbar, savefig
 from matplotlib.colors import LogNorm
 import sys
+from matplotlib import cm
+from matplotlib.colors import ListedColormap, LinearSegmentedColormap
+
+
+
+
+
+###################
+# CUSTOM COLORMAP #
+###################
+
+# colormap settings
+white_length = 7 # as a percentage (%)
+white_blending = 4 # as a percentage (%)
+
+# preprocess
+factor = 3
+no_samples = 100 * factor
+white_length *= factor
+white_blending *= factor
+
+# generate new colormap
+inferno = cm.get_cmap('inferno_r')
+newcolors = inferno(np.linspace(0, 1, no_samples - white_length))
+white_array = np.ones((white_length,4)) # one row of this reads 1,1,1,1 - which is white in RGBA
+
+# apply blending
+if white_blending > 0:
+    for ii in range(white_length-white_blending, white_length):
+        weight = ii/(white_length+1)
+        white_array[ii,:] *= (1-weight)
+        white_array[ii,:] += weight*newcolors[0,:]
+
+# generate colormap
+newcolors = np.concatenate((white_array,newcolors),axis=0)
+inferno_wr = ListedColormap(newcolors)
+
 
 
 
@@ -50,7 +87,7 @@ def plot_premultiplied(all_spectra, components, desired_ys, y, kx, kz, **kwargs)
             ax.set_xscale("log")
             ax.set_yscale("log")
             # when plotting, 0 modes are excluded
-            pos = ax.pcolormesh(kx[1:], kz[1:], premultiplied[y_idx, 1:, 1:], linewidth=0, rasterized=True,shading='gouraud',cmap='hot_r')
+            pos = ax.pcolormesh(kx[1:], kz[1:], premultiplied[y_idx, 1:, 1:], linewidth=0, rasterized=True,shading='gouraud',cmap=inferno_wr)
             pos.set_edgecolor('face')
             ax.set_xlabel(r'$k_x$')
             ax.set_ylabel(r'$k_z$')
@@ -106,7 +143,7 @@ def plot(all_spectra, components, desired_ys, y, kx, kz, **kwargs):
             fig, (ax,cb_ax) = subplots(ncols=2,figsize=(10,7),gridspec_kw={"width_ratios":[1, 0.05]})
             ax.set_xlabel(r'$k_x$')
             ax.set_ylabel(r'$k_z$')
-            pos = ax.pcolormesh(kx,kz,spectrum[y_idx,:,:], vmin=vmin, vmax=vmax, linewidth=0, rasterized=True,shading='gouraud',cmap='hot_r')
+            pos = ax.pcolormesh(kx,kz,spectrum[y_idx,:,:], vmin=vmin, vmax=vmax, linewidth=0, rasterized=True,shading='gouraud',cmap=inferno_wr)
             pos.set_edgecolor('face')
             fig.colorbar(pos,cax=cb_ax)
             cmp = gcmp(component)
@@ -155,7 +192,7 @@ def plot_cumulative_zy(all_spectra, components, y, kz, **kwargs):
         fig, (ax,cb_ax) = subplots(ncols=2,figsize=(10,7),gridspec_kw={"width_ratios":[1, 0.05]})
         ax.set_xscale("log") # logarithmic scale only for lambda z
         # when plotting, 0 modes are excluded
-        pos = ax.pcolormesh(kz[1:], y, premultiplied[:,1:], linewidth=0, rasterized=True,shading='gouraud',cmap='hot_r')
+        pos = ax.pcolormesh(kz[1:], y, premultiplied[:,1:], linewidth=0, rasterized=True,shading='gouraud',cmap=inferno_wr)
         pos.set_edgecolor('face')
         ax.set_xlabel(r'$k_z$') 
         ax.set_ylabel(r'$y$')
@@ -210,7 +247,7 @@ def plot_cumulative_xy(all_spectra, components, y, kx, **kwargs):
         fig, (ax,cb_ax) = subplots(ncols=2,figsize=(10,7),gridspec_kw={"width_ratios":[1, 0.05]})
         ax.set_xscale("log") # logarithmic scale only for lambda z
         # when plotting, 0 modes are excluded
-        pos = ax.pcolormesh(kx[1:], y, premultiplied[:,1:], linewidth=0, rasterized=True,shading='gouraud',cmap='hot_r')
+        pos = ax.pcolormesh(kx[1:], y, premultiplied[:,1:], linewidth=0, rasterized=True,shading='gouraud',cmap=inferno_wr)
         pos.set_edgecolor('face')
         ax.set_xlabel(r'$k_x$')
         ax.set_ylabel(r'$y$')
