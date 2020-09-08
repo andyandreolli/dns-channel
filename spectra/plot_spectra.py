@@ -212,6 +212,7 @@ def plot_cumulative_zy(all_spectra, components, y, kz, **kwargs):
         fig, (ax,cb_ax) = subplots(ncols=2,figsize=(10,7),gridspec_kw={"width_ratios":[1, 0.05]})
         ax.set_xscale("log") # logarithmic scale only for lambda z
         # when plotting, 0 modes are excluded
+        print(kz[1]); print(kz[-1])
         pos = ax.pcolormesh(kz[1:], y, premultiplied[:,1:], linewidth=0, rasterized=True,shading='gouraud',cmap=inferno_wr)
         pos.set_edgecolor('face')
         ax.set_xlabel(r'$k_z$')
@@ -355,3 +356,23 @@ def get_wavelength_fwr(x):
 
 def get_wavelength_inv(x):
     return 2*np.pi/x
+
+
+
+
+def generate_tex_colormap():
+    # newcolors is the array to print
+
+    ncolors = newcolors.shape[0]
+
+    text = r'''\pgfplotsset{
+    colormap={custom_cmap}{
+'''
+    for ii in range(ncolors):
+        text += '\t\t' 'rgb=(' + str(newcolors[ii,0]) + ',' + str(newcolors[ii,1]) + ',' + str(newcolors[ii,2]) + ')' + '\n'
+
+    text += '''\t}
+}'''
+
+    with open('colorbar_settings.tex', 'w') as csets:
+        csets.write(text)
