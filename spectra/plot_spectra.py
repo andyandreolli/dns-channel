@@ -178,7 +178,7 @@ def plot(all_spectra, components, desired_ys, y, kx, kz, **kwargs):
 def plot_cumulative_zy(all_spectra, components, y, kz, **kwargs):
 
     # unpack input
-    save_size = kwargs.get('save_size', (5,5))
+    save_size = kwargs.get('save_size', (1,1))
     w = save_size[0]; h = save_size[1]
     plot_title = kwargs.get('title', '')
     save_fig = kwargs.get('save_fig', '')
@@ -212,7 +212,6 @@ def plot_cumulative_zy(all_spectra, components, y, kz, **kwargs):
         fig, (ax,cb_ax) = subplots(ncols=2,figsize=(10,7),gridspec_kw={"width_ratios":[1, 0.05]})
         ax.set_xscale("log") # logarithmic scale only for lambda z
         # when plotting, 0 modes are excluded
-        print(kz[1]); print(kz[-1])
         pos = ax.pcolormesh(kz[1:], y, premultiplied[:,1:], linewidth=0, rasterized=True,shading='gouraud',cmap=inferno_wr)
         pos.set_edgecolor('face')
         ax.set_xlabel(r'$k_z$')
@@ -226,7 +225,7 @@ def plot_cumulative_zy(all_spectra, components, y, kz, **kwargs):
             ax.set_ylim([0,1])
         if save_fig:
             fig = plt.figure(frameon=False)
-            fig.set_size_inches(w,h)
+            fig.set_size_inches(10*w,10*h)
             ax = plt.Axes(fig, [0., 0., 1., 1.])
             ax.set_axis_off()
             fig.add_axes(ax)
@@ -236,6 +235,11 @@ def plot_cumulative_zy(all_spectra, components, y, kz, **kwargs):
                 ax.set_ylim([0,1])
             figname = plot_title[:-2].lower() + '_cumulative_' + component + '.' + save_format
             savefig(figname, format=save_format, bbox_inches='tight', pad_inches=0)
+            # save tikz code
+            tname = figname.replace('.'+save_format, '')
+            labels = (r'$k_z$', r'$y$')
+            title = r'$k_z\sum_{k_x} \langle \hat{'+cmp[0]+r'}^\dagger\hat{'+cmp[1]+r'} \rangle$'
+            generate_tikz(tname, save_size, labels, title, ax.get_xlim(), ax.get_ylim(), ylog=False)
 
 
 
@@ -244,7 +248,7 @@ def plot_cumulative_zy(all_spectra, components, y, kz, **kwargs):
 def plot_cumulative_xy(all_spectra, components, y, kx, **kwargs):
 
     # unpack input
-    save_size = kwargs.get('save_size', (5,5))
+    save_size = kwargs.get('save_size', (1,1))
     w = save_size[0]; h = save_size[1]
     plot_title = kwargs.get('title', '')
     save_fig = kwargs.get('save_fig', '')
@@ -292,7 +296,7 @@ def plot_cumulative_xy(all_spectra, components, y, kx, **kwargs):
             ax.set_ylim([0,1])
         if save_fig:
             fig = plt.figure(frameon=False)
-            fig.set_size_inches(w,h)
+            fig.set_size_inches(10*w,10*h)
             ax = plt.Axes(fig, [0., 0., 1., 1.])
             ax.set_axis_off()
             fig.add_axes(ax)
@@ -345,8 +349,6 @@ def get_comp_idx(component):
         print('Error: invalid component. Please pass either "x", "y", "z" as the second argument.')
     return idx
 
-
-
 def get_wavelength_fwr(x):
     wvl = np.zeros_like(x)
     x_is_zero = x==0
@@ -356,6 +358,7 @@ def get_wavelength_fwr(x):
 
 def get_wavelength_inv(x):
     return 2*np.pi/x
+
 
 
 
@@ -376,3 +379,53 @@ def generate_tex_colormap():
 
     with open('colorbar_settings.tex', 'w') as csets:
         csets.write(text)
+
+
+
+
+def generate_tikz(fname, size, labels, title, xlim, ylim, **kwargs):
+
+    xlog = kwargs.get('xlog', True)
+    ylog = kwargs.get('ylog', True)
+
+    width = size[0]; height = size[1]
+    xlabel = labels[0]; ylabel = labels[1]
+
+
+    xmode = 'xmode=log,'
+    ymode = 'ymode=log,'
+
+    if not xlog: xmode = '%' + xmode
+    if not ylog: ymode = '%' + ymode
+
+    tikz_code = f'''
+\documentclass{{standalone}}
+\\newcommand{{\\aver}}[1]{{\! \left\langle {{#1}} \\right\\rangle \!}}
+\\usepackage{{pgfplots}}
+\\usepackage{{pgfplotstable}}
+\pgfplotsset{{compat=newest}}
+\\usetikzlibrary{{pgfplots.colorbrewer}}
+\input{{colorbar_settings}}
+\\begin{{document}}
+\\begin{{tikzpicture}}[]%
+\\begin{{axis}}[enlargelimits=false,
+             axis on top,
+             width={width}\\textwidth, height={height}\\textwidth,
+             xlabel={{{xlabel}}},
+             {xmode}
+             {ymode}
+             ylabel={{{ylabel}}},
+             view={{0}}{{90}},
+             point meta min=0,point meta max=3.8, colorbar,
+             colorbar style={{title={{{title}}},height=0.85*\pgfkeysvalueof{{/pgfplots/parent axis height}},at={{(1.1,0)}},anchor=south west}},
+             xmin={xlim[0]}, xmax={xlim[1]}, ymin={ylim[0]}, ymax={ylim[1]},
+             scaled ticks=false,
+            ]
+\\addplot graphics [xmin={xlim[0]}, xmax={xlim[1]}, ymin={ylim[0]}, ymax={ylim[1]},] {{{fname}.png}}; % add external png
+\end{{axis}}
+\end{{tikzpicture}}
+\end{{document}}
+'''
+
+    with open(fname+'.tikz', 'w') as f: # TODO: fixme!
+        f.write(tikz_code)
