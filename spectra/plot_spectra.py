@@ -45,267 +45,270 @@ inferno_wr = ListedColormap(newcolors)
 
 
 
-def plot_premultiplied(all_spectra, components, desired_ys, y, kx, kz, **kwargs):
+def plot_premultiplied(all_spectra, component, desired_y, y, kx, kz, **kwargs):
 
     # unpack input
-    save_size = kwargs.get('save_size', (5,5))
-    w = save_size[0]; h = save_size[1]
-    plot_title = kwargs.get('title', '')
-    save_fig = kwargs.get('save_fig', '')
-    if not save_fig == '':
-        save_format = save_fig
-        save_fig = True
-    else:
-        save_fig = False
-        save_format = ''
-    if not plot_title == '':
-        plot_title = plot_title + ', '
+    save_size = kwargs.get('save_size', (1,1)); w = save_size[0]; h = save_size[1]
+    save_fig = kwargs.get('save_fig', False)
+    cmp = gcmp(component) # get components the proper way
+    y_idx = (np.abs(y - desired_y)).argmin() # identify index of y
 
-    if not (hasattr(components, '__iter__') or hasattr(components, '__getitem__')):
-        components = [components]
-    if not (hasattr(desired_ys, '__iter__') or hasattr(desired_ys, '__getitem__')):
-        desired_ys = [desired_ys]
+    # function specific parameters
+    labels = (r'$k_x$', r'$k_z$')
+    xlabel_alt = r'$\lambda_x$'
+    ylabel_alt = r'$\lambda_z$'
+    fig_title = r'$k_xk_z \langle \hat{'+cmp[0]+r'}^\dagger \hat{'+cmp[1]+r'} \rangle$'
+    xlog = True
+    ylog = True
+    save_name = cmp + '_premultiplied_y{}'.format(round(y[y_idx], 3))
 
-    for component in components:
-        
-        # convert component to index
-        idx = get_comp_idx(component)
-        
-        # select desired spectrum
-        spectrum = all_spectra[idx, :, :, :]
+    # convert component to index
+    idx = get_comp_idx(component)
+     
+    # select desired spectrum
+    spectrum = all_spectra[idx, :, :, :]
 
-        # calculate premultiplier using array broadcasting
-        bcast_premult = kz.reshape((-1, 1)) * kx
-        bcast_premult = abs(bcast_premult)
+    # calculate premultiplier using array broadcasting
+    bcast_premult = kz.reshape((-1, 1)) * kx
+    bcast_premult = abs(bcast_premult)
 
-        # premultiply
-        premultiplied = spectrum * bcast_premult
+    # premultiply
+    premultiplied = spectrum * bcast_premult
 
-        for desired_y in desired_ys:
+    
 
-            y_idx = (np.abs(y - desired_y)).argmin()
+    # prepare figure for plotting
+    rfig, (rax,cb_ax) = subplots(ncols=2,figsize=(10,7),gridspec_kw={"width_ratios":[1, 0.05]})
+    
+    # set some scales to be logarithmic
+    if xlog:
+        rax.set_xscale("log")
+    if ylog:
+        rax.set_yscale("log")
 
-            # actually print
-            fig, (ax,cb_ax) = subplots(ncols=2,figsize=(10,7),gridspec_kw={"width_ratios":[1, 0.05]})
+    # when plotting, 0 modes are excluded
+    pos = rax.pcolormesh(kx[1:], kz[1:], premultiplied[y_idx, 1:, 1:], linewidth=0, rasterized=True,shading='gouraud',cmap=inferno_wr)
+    rax.set_xlabel(labels[0])
+    rax.set_ylabel(labels[1])
+
+    # add secondary x and y axes with wavelengths
+    secaxx = rax.secondary_xaxis('top', functions=(get_wavelength_fwr,get_wavelength_inv))
+    secaxx.set_xlabel(xlabel_alt)
+    secaxy = rax.secondary_yaxis('right', functions=(get_wavelength_fwr,get_wavelength_inv))
+    secaxy.set_ylabel(ylabel_alt)
+
+    # last details for plotting
+    rfig.colorbar(pos, cax=cb_ax)
+    rax.set_title(fig_title + ', y = {}'.format(round(y[y_idx], 3)))
+
+    # save
+    if save_fig:
+        fig = plt.figure(111,frameon=False)
+        fig.set_size_inches(10*w,10*h)
+        ax = plt.Axes(fig, [0., 0., 1., 1.])
+        ax.set_axis_off()
+        fig.add_axes(ax)
+        if xlog:
             ax.set_xscale("log")
+        if ylog:
             ax.set_yscale("log")
-            # when plotting, 0 modes are excluded
-            pos = ax.pcolormesh(kx[1:], kz[1:], premultiplied[y_idx, 1:, 1:], linewidth=0, rasterized=True,shading='gouraud',cmap=inferno_wr)
-            pos.set_edgecolor('face')
-            ax.set_xlabel(r'$k_x$')
-            ax.set_ylabel(r'$k_z$')
-            secaxx = ax.secondary_xaxis('top', functions=(get_wavelength_fwr,get_wavelength_inv))
-            secaxx.set_xlabel(r'$\lambda_x$')
-            secaxy = ax.secondary_yaxis('right', functions=(get_wavelength_fwr,get_wavelength_inv))
-            secaxy.set_ylabel(r'$\lambda_z$')
-            fig.colorbar(pos, cax=cb_ax)
-            cmp = gcmp(component)
-            ax.set_title(plot_title + r'$k_xk_z \langle \hat{'+cmp[0]+r'}^\dagger \hat{'+cmp[1]+r'} \rangle$, ' + 'y = {}'.format(round(y[y_idx], 3)))
-            if save_fig:
-                fig = plt.figure(frameon=False)
-                fig.set_size_inches(w,h)
-                ax = plt.Axes(fig, [0., 0., 1., 1.])
-                ax.set_axis_off()
-                fig.add_axes(ax)
-                ax.set_xscale("log")
-                ax.set_yscale("log")
-                ax.pcolormesh(kx[1:], kz[1:], premultiplied[y_idx, 1:, 1:], linewidth=0, rasterized=True,shading='gouraud',cmap=inferno_wr)
-                figname = plot_title[:-2].lower() + '_' + 'premultiplied' + '_' + component + '_y' + str(round(y[y_idx], 3)).replace('.','') + '.' + save_format
-                savefig(figname, format=save_format)
+        ax.pcolormesh(kx[1:], kz[1:], premultiplied[y_idx, 1:, 1:], linewidth=0, rasterized=True,shading='gouraud',cmap=inferno_wr)
+        # save figure
+        savefig(save_name+'.png', bbox_inches='tight', pad_inches=0)
+        # save tikz code
+        generate_tikz(save_name, save_size, labels, fig_title, ax.get_xlim(), ax.get_ylim(), xlog=xlog, ylog=ylog)
+        # close figure, so that it does not get plotted
+        plt.close(111)
+    
+    return rfig, rax
 
 
 
 
 
-def plot(all_spectra, components, desired_ys, y, kx, kz, **kwargs):
+def plot(all_spectra, component, desired_y, y, kx, kz, **kwargs):
 
-    save_size = kwargs.get('save_size', (5,5))
-    w = save_size[0]; h = save_size[1]
+    # unpack input
     vmin = kwargs.get('vmin', None)
     vmax = kwargs.get('vmax', None)
-    plot_title = kwargs.get('title', '')
-    save_fig = kwargs.get('save_fig', '')
-    if not save_fig == '':
-        save_format = save_fig
-        save_fig = True
-    else:
-        save_fig = False
-        save_format = ''
-    if not plot_title == '':
-        plot_title = plot_title + ', '
+    cmp = gcmp(component) # get components the proper way
+    y_idx = (np.abs(y - desired_y)).argmin() # identify index of y
+
+    # function specific parameters
+    labels = (r'$k_x$', r'$k_z$')
+    fig_title = r'$\tilde{'+cmp[0]+r'}^\dagger \tilde{'+cmp[1]+'}$'
+
+    # convert component to index
+    idx = get_comp_idx(component)
+    
+    # select desired spectrum
+    spectrum = all_spectra[idx, :, :, :]
+
+    # actually print
+    fig, (ax,cb_ax) = subplots(ncols=2,figsize=(10,7),gridspec_kw={"width_ratios":[1, 0.05]})
+    ax.set_xlabel(labels[0])
+    ax.set_ylabel(labels[1])
+    pos = ax.pcolormesh(kx,kz,spectrum[y_idx,:,:], vmin=vmin, vmax=vmax, linewidth=0, rasterized=True,shading='gouraud',cmap=inferno_wr)
+    fig.colorbar(pos,cax=cb_ax)
+    ax.set_title(fig_title + ', y = {}'.format(round(y[y_idx], 3)))
+
+
+
+
+
+def plot_cumulative_zy(all_spectra, component, y, kz, **kwargs):
 
     # unpack input
-    if not (hasattr(components, '__iter__') or hasattr(components, '__getitem__')):
-        components = [components]
-    if not (hasattr(desired_ys, '__iter__') or hasattr(desired_ys, '__getitem__')):
-        desired_ys = [desired_ys]
-
-    for component in components:
-        
-        # convert component to index
-        idx = get_comp_idx(component)
-        
-        # select desired spectrum
-        spectrum = all_spectra[idx, :, :, :]
-
-        for desired_y in desired_ys:
-
-            y_idx = (np.abs(y - desired_y)).argmin()
-
-            # actually print
-            fig, (ax,cb_ax) = subplots(ncols=2,figsize=(10,7),gridspec_kw={"width_ratios":[1, 0.05]})
-            ax.set_xlabel(r'$k_x$')
-            ax.set_ylabel(r'$k_z$')
-            pos = ax.pcolormesh(kx,kz,spectrum[y_idx,:,:], vmin=vmin, vmax=vmax, linewidth=0, rasterized=True,shading='gouraud',cmap=inferno_wr)
-            pos.set_edgecolor('face')
-            fig.colorbar(pos,cax=cb_ax)
-            cmp = gcmp(component)
-            ax.set_title(plot_title + r'$ \tilde{'+cmp[0]+r'}^\dagger \tilde{'+cmp[1]+'}$, ' + 'y = {}'.format(round(y[y_idx], 3)))
-            if save_fig:
-                fig = plt.figure(frameon=False)
-                fig.set_size_inches(w,h)
-                ax = plt.Axes(fig, [0., 0., 1., 1.])
-                ax.set_axis_off()
-                fig.add_axes(ax)
-                ax.pcolormesh(kx,kz,spectrum[y_idx,:,:], vmin=vmin, vmax=vmax, linewidth=0, rasterized=True,shading='gouraud',cmap=inferno_wr)
-                figname = plot_title[:-2].lower() + '_' + component + '_y' + str(round(y[y_idx], 3)).replace('.','') + '.' + save_format
-                savefig(figname, format=save_format)
-
-
-
-
-
-def plot_cumulative_zy(all_spectra, components, y, kz, **kwargs):
-
-    # unpack input
-    save_size = kwargs.get('save_size', (1,1))
-    w = save_size[0]; h = save_size[1]
-    plot_title = kwargs.get('title', '')
-    save_fig = kwargs.get('save_fig', '')
+    save_size = kwargs.get('save_size', (1,1)); w = save_size[0]; h = save_size[1]
+    save_fig = kwargs.get('save_fig', False)
     y_symm = kwargs.get('y_symm', True)
-    if not save_fig == '':
-        save_format = save_fig
-        save_fig = True
-    else:
-        save_fig = False
-        save_format = ''
+    cmp = gcmp(component)
 
+    # function specific parameters
+    labels = (r'$k_z$', r'$y$')
+    xlabel_alt = r'$\lambda_z$'
+    fig_title = r'$k_z\sum_{k_x} \langle \hat{'+cmp[0]+r'}^\dagger\hat{'+cmp[1]+r'} \rangle$'
+    xlog = True
+    ylog = False
+    save_name = cmp + '_cumulative_zy'
 
-    if not (hasattr(components, '__iter__') or hasattr(components, '__getitem__')):
-        components = [components]
+    # convert component to index
+    idx = get_comp_idx(component)
+    
+    # select desired spectrum component
+    spectrum = all_spectra[idx, :, :, :]
 
-    for component in components:
-        
-        # convert component to index
-        idx = get_comp_idx(component)
-        
-        # select desired spectrum component
-        spectrum = all_spectra[idx, :, :, :]
+    # sum along x-axis
+    spectrum = spectrum.sum(axis=(-1))
 
-        # sum along x-axis
-        spectrum = spectrum.sum(axis=(-1))
+    # premultiply (reshape kz for broadcasting)
+    premultiplied = spectrum * abs(kz)
 
-        # premultiply (reshape kz for broadcasting)
-        premultiplied = spectrum * abs(kz)
+    # prepare figure for plotting
+    rfig, (rax,cb_ax) = subplots(ncols=2,figsize=(10,7),gridspec_kw={"width_ratios":[1, 0.05]})
 
-        # actually print
-        fig, (ax,cb_ax) = subplots(ncols=2,figsize=(10,7),gridspec_kw={"width_ratios":[1, 0.05]})
-        ax.set_xscale("log") # logarithmic scale only for lambda z
-        # when plotting, 0 modes are excluded
-        pos = ax.pcolormesh(kz[1:], y, premultiplied[:,1:], linewidth=0, rasterized=True,shading='gouraud',cmap=inferno_wr)
-        pos.set_edgecolor('face')
-        ax.set_xlabel(r'$k_z$')
-        ax.set_ylabel(r'$y$')
-        secaxx = ax.secondary_xaxis('top', functions=(get_wavelength_fwr,get_wavelength_inv))
-        secaxx.set_xlabel(r'$\lambda_z$')
-        fig.colorbar(pos, cax=cb_ax)
-        cmp = gcmp(component)
-        ax.set_title(plot_title + r'$k_z\sum\,_{k_x} \langle \hat{'+cmp[0]+r'}^\dagger\hat{'+cmp[1]+r'} \rangle(k_x, k_z, y)$')
+    # set some scales to be logarithmic
+    if xlog:
+        rax.set_xscale("log")
+    if ylog:
+        rax.set_yscale("log")
+
+    # when plotting, 0 modes are excluded
+    pos = rax.pcolormesh(kz[1:], y, premultiplied[:,1:], linewidth=0, rasterized=True,shading='gouraud',cmap=inferno_wr)
+    rax.set_xlabel(labels[0])
+    rax.set_ylabel(labels[1])
+
+    # add secondary x axis with wavelength
+    secaxx = rax.secondary_xaxis('top', functions=(get_wavelength_fwr,get_wavelength_inv))
+    secaxx.set_xlabel(xlabel_alt)
+
+    # last details for plotting
+    rfig.colorbar(pos, cax=cb_ax)
+    rax.set_title(fig_title)
+    if y_symm:
+        rax.set_ylim([0,1])
+
+    # save
+    if save_fig:
+        fig = plt.figure(111,frameon=False)
+        fig.set_size_inches(10*w,10*h)
+        ax = plt.Axes(fig, [0., 0., 1., 1.])
+        ax.set_axis_off()
+        fig.add_axes(ax)
+        if xlog:
+            ax.set_xscale("log")
+        if ylog:
+            ax.set_yscale("log")
+        ax.pcolormesh(kz[1:], y, premultiplied[:,1:], linewidth=0, rasterized=True,shading='gouraud',cmap=inferno_wr)
         if y_symm:
             ax.set_ylim([0,1])
-        if save_fig:
-            fig = plt.figure(frameon=False)
-            fig.set_size_inches(10*w,10*h)
-            ax = plt.Axes(fig, [0., 0., 1., 1.])
-            ax.set_axis_off()
-            fig.add_axes(ax)
-            ax.set_xscale("log")
-            ax.pcolormesh(kz[1:], y, premultiplied[:,1:], linewidth=0, rasterized=True,shading='gouraud',cmap=inferno_wr)
-            if y_symm:
-                ax.set_ylim([0,1])
-            figname = plot_title[:-2].lower() + '_cumulative_' + component + '.' + save_format
-            savefig(figname, format=save_format, bbox_inches='tight', pad_inches=0)
-            # save tikz code
-            tname = figname.replace('.'+save_format, '')
-            labels = (r'$k_z$', r'$y$')
-            title = r'$k_z\sum_{k_x} \langle \hat{'+cmp[0]+r'}^\dagger\hat{'+cmp[1]+r'} \rangle$'
-            generate_tikz(tname, save_size, labels, title, ax.get_xlim(), ax.get_ylim(), ylog=False)
+        # save figure
+        savefig(save_name+'.png', bbox_inches='tight', pad_inches=0)
+        # save tikz code
+        generate_tikz(save_name, save_size, labels, fig_title, ax.get_xlim(), ax.get_ylim(), xlog=xlog, ylog=ylog)
+        # close figure, so that it does not get plotted
+        plt.close(111)
+
+    return rfig, rax
 
 
 
 
 
-def plot_cumulative_xy(all_spectra, components, y, kx, **kwargs):
+def plot_cumulative_xy(all_spectra, component, y, kx, **kwargs):
 
     # unpack input
-    save_size = kwargs.get('save_size', (1,1))
-    w = save_size[0]; h = save_size[1]
-    plot_title = kwargs.get('title', '')
-    save_fig = kwargs.get('save_fig', '')
+    save_size = kwargs.get('save_size', (1,1)); w = save_size[0]; h = save_size[1]
+    save_fig = kwargs.get('save_fig', False)
     y_symm = kwargs.get('y_symm', True)
-    if not save_fig == '':
-        save_format = save_fig
-        save_fig = True
-    else:
-        save_fig = False
-        save_format = ''
-    if not plot_title == '':
-        plot_title = plot_title + ', '
+    cmp = gcmp(component)
 
-    if not (hasattr(components, '__iter__') or hasattr(components, '__getitem__')):
-        components = [components]
-
-    for component in components:
+    # function specific parameters
+    labels = (r'$k_x$', r'$y$')
+    xlabel_alt = r'$\lambda_x$'
+    fig_title = r'$k_x\sum_{k_z} \langle \hat{'+cmp[0]+r'}^\dagger\hat{'+cmp[1]+r'} \rangle$'
+    xlog = True
+    ylog = False
+    save_name = cmp + '_cumulative_xy'
         
-        # convert component to index
-        idx = get_comp_idx(component)
-        
-        # select desired spectrum component
-        spectrum = all_spectra[idx, :, :, :]
+    # convert component to index
+    idx = get_comp_idx(component)
+    
+    # select desired spectrum component
+    spectrum = all_spectra[idx, :, :, :]
 
-        # sum along z-axis
-        spectrum = spectrum.sum(axis=(-2))
+    # sum along z-axis
+    spectrum = spectrum.sum(axis=(-2))
 
-        # premultiply (reshape kz for broadcasting)
-        premultiplied = spectrum * abs(kx)
+    # premultiply (reshape kz for broadcasting)
+    premultiplied = spectrum * abs(kx)
 
-        # actually print
-        fig, (ax,cb_ax) = subplots(ncols=2,figsize=(10,7),gridspec_kw={"width_ratios":[1, 0.05]})
-        ax.set_xscale("log") # logarithmic scale only for lambda z
-        # when plotting, 0 modes are excluded
-        pos = ax.pcolormesh(kx[1:], y, premultiplied[:,1:], linewidth=0, rasterized=True,shading='gouraud',cmap=inferno_wr)
-        pos.set_edgecolor('face')
-        ax.set_xlabel(r'$k_x$')
-        ax.set_ylabel(r'$y$')
-        secaxx = ax.secondary_xaxis('top', functions=(get_wavelength_fwr,get_wavelength_inv))
-        secaxx.set_xlabel(r'$\lambda_x$')
-        fig.colorbar(pos,cax=cb_ax)
-        cmp = gcmp(component)
-        ax.set_title(plot_title + r'$k_x\sum\,_{k_z} \langle \hat{'+cmp[0]+r'}^\dagger\hat{'+cmp[1]+r'} \rangle(k_x, k_z, y)$')
+    # prepare figure for plotting
+    rfig, (rax,cb_ax) = subplots(ncols=2,figsize=(10,7),gridspec_kw={"width_ratios":[1, 0.05]})
+    
+    # set some scales to be logarithmic
+    if xlog:
+        rax.set_xscale("log")
+    if ylog:
+        rax.set_yscale("log")
+
+    # when plotting, 0 modes are excluded
+    pos = rax.pcolormesh(kx[1:], y, premultiplied[:,1:], linewidth=0, rasterized=True,shading='gouraud',cmap=inferno_wr)
+    rax.set_xlabel(labels[0])
+    rax.set_ylabel(labels[1])
+
+    # add secondary x axis with wavelength
+    secaxx = rax.secondary_xaxis('top', functions=(get_wavelength_fwr,get_wavelength_inv))
+    secaxx.set_xlabel(xlabel_alt)
+    
+    # last details for plotting
+    rfig.colorbar(pos,cax=cb_ax)
+    rax.set_title(fig_title)
+    if y_symm:
+        rax.set_ylim([0,1])
+
+    # save
+    if save_fig:
+        fig = plt.figure(111,frameon=False)
+        fig.set_size_inches(10*w,10*h)
+        ax = plt.Axes(fig, [0., 0., 1., 1.])
+        ax.set_axis_off()
+        fig.add_axes(ax)
+        if xlog:
+            ax.set_xscale("log")
+        if ylog:
+            ax.set_yscale("log")
+        ax.pcolormesh(kx[1:], y, premultiplied[:,1:], linewidth=0, rasterized=True,shading='gouraud',cmap=inferno_wr)
         if y_symm:
             ax.set_ylim([0,1])
-        if save_fig:
-            fig = plt.figure(frameon=False)
-            fig.set_size_inches(10*w,10*h)
-            ax = plt.Axes(fig, [0., 0., 1., 1.])
-            ax.set_axis_off()
-            fig.add_axes(ax)
-            ax.set_xscale("log")
-            ax.pcolormesh(kx[1:], y, premultiplied[:,1:], linewidth=0, rasterized=True,shading='gouraud',cmap=inferno_wr)
-            if y_symm:
-                ax.set_ylim([0,1])
-            figname = plot_title[:-2].lower() + '_cumulative_' + component + '.' + save_format
-            savefig(figname, format=save_format)
+        # save figure
+        savefig(save_name+'.png', bbox_inches='tight', pad_inches=0)
+        # save tikz code
+        generate_tikz(save_name, save_size, labels, fig_title, ax.get_xlim(), ax.get_ylim(), xlog=xlog, ylog=ylog)
+        # close figure, so that it does not get plotted
+        plt.close(111)
+
+    return rfig, rax
 
 
 
@@ -379,6 +382,7 @@ def generate_tex_colormap():
 
     with open('colorbar_settings.tex', 'w') as csets:
         csets.write(text)
+
 
 
 
