@@ -57,7 +57,7 @@ def plot_premultiplied(all_spectra, component, desired_y, y, kx, kz, **kwargs):
     labels = (r'$k_x$', r'$k_z$')
     xlabel_alt = r'$\lambda_x$'
     ylabel_alt = r'$\lambda_z$'
-    fig_title = r'$k_xk_z \langle \hat{'+cmp[0]+r'}^\dagger \hat{'+cmp[1]+r'} \rangle$'
+    fig_title = r'$\displaystyle k_xk_z \langle \hat{'+cmp[0]+r'}^\dagger \hat{'+cmp[1]+r'} \rangle$'
     xlog = True
     ylog = True
     save_name = cmp + '_premultiplied_y{}'.format(round(y[y_idx], 3))
@@ -114,7 +114,7 @@ def plot_premultiplied(all_spectra, component, desired_y, y, kx, kz, **kwargs):
             ax.set_yscale("log")
         ax.pcolormesh(kx[1:], kz[1:], premultiplied[y_idx, 1:, 1:], linewidth=0, rasterized=True,shading='gouraud',cmap=inferno_wr)
         # save figure
-        savefig(save_name+'.png', bbox_inches='tight', pad_inches=0)
+        savefig(save_name+'.png', format='png', bbox_inches='tight', pad_inches=0)
         # save tikz code
         generate_tikz(save_name, save_size, labels, fig_title, ax.get_xlim(), ax.get_ylim(), xlog=xlog, ylog=ylog)
         # close figure, so that it does not get plotted
@@ -136,7 +136,7 @@ def plot(all_spectra, component, desired_y, y, kx, kz, **kwargs):
 
     # function specific parameters
     labels = (r'$k_x$', r'$k_z$')
-    fig_title = r'$\tilde{'+cmp[0]+r'}^\dagger \tilde{'+cmp[1]+'}$'
+    fig_title = r'$\displaystyle \tilde{'+cmp[0]+r'}^\dagger \tilde{'+cmp[1]+'}$'
 
     # convert component to index
     idx = get_comp_idx(component)
@@ -167,7 +167,7 @@ def plot_cumulative_zy(all_spectra, component, y, kz, **kwargs):
     # function specific parameters
     labels = (r'$k_z$', r'$y$')
     xlabel_alt = r'$\lambda_z$'
-    fig_title = r'$k_z\sum_{k_x} \langle \hat{'+cmp[0]+r'}^\dagger\hat{'+cmp[1]+r'} \rangle$'
+    fig_title = r'$\displaystyle k_z\sum_{k_x} \langle \hat{'+cmp[0]+r'}^\dagger\hat{'+cmp[1]+r'} \rangle$'
     xlog = True
     ylog = False
     save_name = cmp + '_cumulative_zy'
@@ -223,7 +223,7 @@ def plot_cumulative_zy(all_spectra, component, y, kz, **kwargs):
         if y_symm:
             ax.set_ylim([0,1])
         # save figure
-        savefig(save_name+'.png', bbox_inches='tight', pad_inches=0)
+        savefig(save_name+'.png', format='png', bbox_inches='tight', pad_inches=0)
         # save tikz code
         generate_tikz(save_name, save_size, labels, fig_title, ax.get_xlim(), ax.get_ylim(), xlog=xlog, ylog=ylog)
         # close figure, so that it does not get plotted
@@ -246,7 +246,7 @@ def plot_cumulative_xy(all_spectra, component, y, kx, **kwargs):
     # function specific parameters
     labels = (r'$k_x$', r'$y$')
     xlabel_alt = r'$\lambda_x$'
-    fig_title = r'$k_x\sum_{k_z} \langle \hat{'+cmp[0]+r'}^\dagger\hat{'+cmp[1]+r'} \rangle$'
+    fig_title = r'$\displaystyle k_x\sum_{k_z} \langle \hat{'+cmp[0]+r'}^\dagger\hat{'+cmp[1]+r'} \rangle$'
     xlog = True
     ylog = False
     save_name = cmp + '_cumulative_xy'
@@ -302,7 +302,7 @@ def plot_cumulative_xy(all_spectra, component, y, kx, **kwargs):
         if y_symm:
             ax.set_ylim([0,1])
         # save figure
-        savefig(save_name+'.png', bbox_inches='tight', pad_inches=0)
+        savefig(save_name+'.png', format='png', bbox_inches='tight', pad_inches=0)
         # save tikz code
         generate_tikz(save_name, save_size, labels, fig_title, ax.get_xlim(), ax.get_ylim(), xlog=xlog, ylog=ylog)
         # close figure, so that it does not get plotted
@@ -421,7 +421,7 @@ def generate_tikz(fname, size, labels, title, xlim, ylim, **kwargs):
              ylabel={{{ylabel}}},
              view={{0}}{{90}},
              point meta min=0,point meta max=3.8, colorbar,
-             colorbar style={{title={{{title}}},height=0.85*\pgfkeysvalueof{{/pgfplots/parent axis height}},at={{(1.1,0)}},anchor=south west}},
+             colorbar style={{title={{{title}}},height=(\pgfkeysvalueof{{/pgfplots/parent axis height}}-3\\baselineskip),at={{(1.1,0)}},anchor=south west}},
              xmin={xlim[0]}, xmax={xlim[1]}, ymin={ylim[0]}, ymax={ylim[1]},
              scaled ticks=false,
             ]
