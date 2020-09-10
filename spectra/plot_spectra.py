@@ -414,7 +414,7 @@ def generate_tikz(fname, size, labels, title, xlim, ylim, **kwargs):
 \\begin{{tikzpicture}}[]%
 \\begin{{axis}}[enlargelimits=false,
              axis on top,
-             width={width}\\textwidth, height={height}\\textwidth,
+             width={width}\\linewidth, height={height}\\linewidth,
              xlabel={{{xlabel}}},
              {xmode}
              {ymode}
